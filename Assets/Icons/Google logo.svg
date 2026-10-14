@@ -1,0 +1,46 @@
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="20" height="20" fill="#8A8A8A"/>
+<g id="Concept - Option 1">
+<rect width="1440" height="10248" transform="translate(-754.667 -5242)" fill="#111111"/>
+<g id="Frame 1000008645">
+<rect width="1440" height="732" transform="translate(-754.667 -554)" fill="#2E2E2E"/>
+<g id="Testimonials">
+<path d="M-730.667 -506C-730.667 -519.255 -719.922 -530 -706.667 -530H637.333C650.588 -530 661.333 -519.255 661.333 -506V130C661.333 143.255 650.588 154 637.333 154H-706.667C-719.922 154 -730.667 143.255 -730.667 130V-506Z" fill="#F88800"/>
+<g id="Frame 1000008629">
+<g id="Testimonial card">
+<g clip-path="url(#clip0_11600_2140)">
+<g id="Main Card">
+<path d="M-277.333 -210C-277.333 -214.418 -273.752 -218 -269.333 -218H144C148.418 -218 152 -214.418 152 -210V50C152 54.4183 148.418 58 144 58H-269.333C-273.752 58 -277.333 54.4183 -277.333 50V-210Z" fill="#F2F2F2"/>
+<g id="Content">
+<g id="Frame 1000008597">
+<g id="Frame 1000008596" filter="url(#filter0_d_11600_2140)">
+<path d="M-8 -4C-8 -6.20914 -6.20914 -8 -4 -8H124C126.209 -8 128 -6.20914 128 -4V24C128 26.2091 126.209 28 124 28H-4C-6.20914 28 -8 26.2091 -8 24V-4Z" fill="white" shape-rendering="crispEdges"/>
+<g id="Icon / Google logo">
+<path id="Google logo" d="M9.33782 3.34516C10.7128 3.26001 12.0771 3.64275 13.2267 4.43612C13.5156 4.63542 13.7455 4.83377 14.008 5.06714L12.209 6.94672C11.8249 6.60047 11.3785 6.33788 10.8961 6.17437C9.93059 5.84916 8.88142 5.93404 7.97524 6.4107C7.05616 6.89705 6.36173 7.74812 6.04715 8.7737C5.73566 9.79167 5.82441 10.8974 6.29381 11.8468C6.76183 12.7937 7.57048 13.5074 8.54182 13.8308C9.47594 14.1433 10.5874 14.0737 11.4612 13.5972C12.3342 13.121 12.8863 12.3416 13.1815 11.3743C12.0391 11.3593 10.8586 11.3731 9.71359 11.373L9.71462 8.82373L11.8096 8.82829L15.7247 8.83566C15.7611 9.06417 15.7953 9.25132 15.8127 9.4876C15.9455 11.2867 15.4405 13.2444 14.3138 14.6302C13.2762 15.9065 11.8893 16.5132 10.3185 16.6436C8.58523 16.7874 6.90282 16.264 5.57537 15.0746C4.27665 13.9201 3.47537 12.269 3.35119 10.4914C3.22546 8.73192 3.77344 6.99225 4.87452 5.65519C6.03416 4.24519 7.57525 3.48399 9.33782 3.34516Z" fill="#321B00"/>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_11600_2140" x="-14.3" y="-13.3" width="148.6" height="48.6" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dy="1"/>
+<feGaussianBlur stdDeviation="3.15"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.776471 0 0 0 0 0.427451 0 0 0 0 0 0 0 0 0.14 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_11600_2140"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_11600_2140" result="shape"/>
+</filter>
+<clipPath id="clip0_11600_2140">
+<rect x="-277.333" y="-218" width="429.333" height="276" rx="24" fill="white"/>
+</clipPath>
+</defs>
+</svg>
