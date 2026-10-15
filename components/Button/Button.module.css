@@ -1,0 +1,137 @@
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 1000px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  font-family: "Neue Haas Unica W1G", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  width: fit-content;
+  transition:
+    background-color 0.35s cubic-bezier(.65, 0, .35, 1),
+    border-color 0.35s cubic-bezier(.65, 0, .35, 1),
+    color 0.35s cubic-bezier(.65, 0, .35, 1);
+}
+.btn:focus-visible {
+  outline: 2px solid #f88800;
+  outline-offset: 2px;
+}
+
+.label {
+  overflow: hidden;
+  height: 24px;
+  display: flex;
+  align-items: flex-start;
+}
+.labelTrack {
+  display: flex;
+  flex-direction: column;
+  transform: translateY(0);
+  transition: transform 0.35s cubic-bezier(.65, 0, .35, 1);
+}
+.labelTrack span {
+  height: 24px;
+  line-height: 24px;
+  display: block;
+}
+.btn:hover:not(.inactive) .labelTrack {
+  transform: translateY(-24px);
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color 0.35s cubic-bezier(.65, 0, .35, 1), color 0.35s cubic-bezier(.65, 0, .35, 1);
+}
+.icon svg { display: block; }
+.iconBare { background: none !important; width: auto; height: auto; }
+
+.inactive {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ---------- Sizes ---------- */
+.lg { padding: 4px 4px 4px 24px; font-size: 18px; }
+.lg .icon:not(.iconBare) { width: 48px; height: 48px; }
+.lg .icon svg { width: 24px; height: 24px; }
+.textLink.lg { padding: 4px 0; }
+.textLink.lg .icon svg { width: 20px; height: 20px; }
+
+.default { padding: 4px 4px 4px 24px; font-size: 16px; }
+.default .icon:not(.iconBare) { width: 44px; height: 44px; }
+.default .icon svg { width: 22px; height: 22px; }
+.textLink.default { padding: 4px 0; }
+.textLink.default .icon svg { width: 18px; height: 18px; }
+
+.sm { padding: 4px 4px 4px 20px; font-size: 14px; }
+.sm .icon:not(.iconBare) { width: 36px; height: 36px; }
+.sm .icon svg { width: 20px; height: 20px; }
+.textLink.sm { padding: 4px 0; }
+.textLink.sm .icon svg { width: 16px; height: 16px; }
+
+/* ---------- Light mode ---------- */
+.light.primary { background: #f88800; color: #111111; }
+.light.primary .icon { background: #111111; color: #ffffff; }
+.light.primary:hover:not(.inactive) {
+  background: #111111;
+  color: #ffffff;
+}
+.light.primary:hover:not(.inactive) .icon { background: #f88800; color: #111111; }
+.light.primary.inactive { background: #cccccc; color: #ffffff; }
+.light.primary.inactive .icon { background: #ffffff; color: #cccccc; }
+
+.light.secondary { background: #ffffff; color: #111111; border-color: #2e2e2e; }
+.light.secondary .icon { background: #f88800; color: #111111; }
+.light.secondary:hover:not(.inactive) {
+  background: #f88800;
+  color: #111111;
+  border-color: transparent;
+  text-decoration: none;
+}
+.light.secondary:hover:not(.inactive) .icon { background: #111111; color: #ffffff; }
+.light.secondary.inactive { background: transparent; color: #b9b9b9; border-color: #b9b9b9; }
+.light.secondary.inactive .icon { color: #b9b9b9; }
+
+.light.textLink { color: #111111; }
+.light.textLink .icon { color: #111111; }
+.light.textLink:hover:not(.inactive) { text-decoration: underline; text-underline-offset: 3px; }
+.light.textLink.inactive { color: #b9b9b9; }
+.light.textLink.inactive .icon { color: #b9b9b9; }
+
+/* ---------- Dark mode ---------- */
+.dark.primary { background: #ffffff; color: #111111; }
+.dark.primary .icon { background: #111111; color: #ffffff; }
+.dark.primary:hover:not(.inactive) {
+  background: #fee7cc;
+  color: #111111;
+}
+.dark.primary:hover:not(.inactive) .icon { background: #f88800; color: #111111; }
+.dark.primary.inactive { background: #cccccc; color: #ffffff; }
+.dark.primary.inactive .icon { background: #ffffff; color: #cccccc; }
+
+.dark.secondary { background: transparent; color: #ffffff; border-color: #b9b9b9; }
+.dark.secondary .icon { background: #f88800; color: #111111; }
+.dark.secondary:hover:not(.inactive) {
+  background: #f88800;
+  color: #111111;
+  border-color: transparent;
+  text-decoration: none;
+}
+.dark.secondary:hover:not(.inactive) .icon { background: #111111; color: #ffffff; }
+.dark.secondary.inactive { background: transparent; color: rgba(255, 255, 255, .5); border-color: rgba(255, 255, 255, .5); }
+.dark.secondary.inactive .icon { color: rgba(255, 255, 255, .5); }
+
+.dark.textLink { color: #ffffff; }
+.dark.textLink .icon { color: #ffffff; }
+.dark.textLink:hover:not(.inactive) { text-decoration: underline; text-underline-offset: 3px; }
+.dark.textLink.inactive { color: rgba(255, 255, 255, .5); }
+.dark.textLink.inactive .icon { color: rgba(255, 255, 255, .5); }
