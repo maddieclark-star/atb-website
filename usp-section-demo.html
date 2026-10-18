@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ATB — USP Section</title>
+<style>
+  :root {
+    --btn-font: "Neue Haas Unica W1G", "Helvetica Neue", Arial, sans-serif;
+    --duration: 0.35s;
+    --ease: cubic-bezier(.65, 0, .35, 1);
+    --line-h: 24px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background: #1a1a1a;
+  }
+
+  header.page-head {
+    padding: 32px 40px 8px;
+    color: #111;
+    background: #f4f4f4;
+  }
+  header.page-head h1 { margin: 0 0 4px; font-size: 22px; }
+  header.page-head p { margin: 0; color: #555; font-size: 14px; max-width: 760px; line-height: 1.5; }
+  header.page-head p.note { margin-top: 10px; color: #a85b00; }
+
+  /* ---------- Button (ATB CTA — matches components/Button) ---------- */
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 1000px;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--btn-font);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    width: fit-content;
+    transition:
+      background-color var(--duration) var(--ease),
+      border-color var(--duration) var(--ease),
+      color var(--duration) var(--ease);
+  }
+  .btn:focus-visible { outline: 2px solid #f88800; outline-offset: 2px; }
+
+  .btn__label { overflow: hidden; height: var(--line-h); display: flex; align-items: flex-start; }
+  .btn__label-track { display: flex; flex-direction: column; transform: translateY(0); transition: transform var(--duration) var(--ease); }
+  .btn__label-track span { height: var(--line-h); line-height: var(--line-h); display: block; }
+  .btn:hover:not(.btn--inactive) .btn__label-track { transform: translateY(calc(-1 * var(--line-h))); }
+
+  .btn__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
+  }
+  .btn__icon svg { display: block; }
+  .btn__icon.is-bare { background: none !important; width: auto; height: auto; }
+
+  .btn--lg { padding: 4px 4px 4px 24px; font-size: 18px; }
+  .btn--lg .btn__icon:not(.is-bare) { width: 48px; height: 48px; }
+  .btn--lg .btn__icon svg { width: 24px; height: 24px; }
+
+  .btn--sm { padding: 4px 4px 4px 20px; font-size: 14px; }
+  .btn--sm .btn__icon:not(.is-bare) { width: 36px; height: 36px; }
+  .btn--sm .btn__icon svg { width: 20px; height: 20px; }
+
+  .mode-light.btn--primary { background: #f88800; color: #111111; }
+  .mode-light.btn--primary .btn__icon { background: #111111; color: #ffffff; }
+  .mode-light.btn--primary:hover:not(.btn--inactive) { background: #111111; color: #ffffff; }
+  .mode-light.btn--primary:hover:not(.btn--inactive) .btn__icon { background: #f88800; color: #111111; }
+
+  /* ---------- USP section ---------- */
+  .usp-section {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 64px;
+    padding: 96px 64px;
+    background: linear-gradient(to bottom, #454545, #2e2e2e);
+    font-family: var(--btn-font);
+  }
+
+  .usp-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px 32px;
+    width: 100%;
+  }
+
+  .usp-header-left {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .usp-dot { display: block; width: 50px; height: 16px; overflow: visible; }
+  .usp-dot-circle {
+    opacity: 1;
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: dotBounce 2.4s ease-in-out infinite;
+  }
+  @keyframes dotBounce {
+    0%, 20%, 100% { transform: translateY(0); }
+    8.33% { transform: translateY(-5px); }
+  }
+
+  .usp-title { margin: 0; font-weight: 800; font-size: 44px; line-height: 48px; color: #ffffff; }
+
+  .usp-subtitle { margin: 0; width: 100%; max-width: 629px; font-weight: 500; font-size: 18px; line-height: 28px; color: #e5e5e5; }
+
+  .usp-cards-wrap { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+  .usp-cards-row { display: flex; gap: 12px; width: 100%; }
+
+  .usp-card {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 340px;
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    border-radius: 16px;
+    background: #ffffff;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(28px);
+    transition: background-color 0.35s ease,
+      opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
+      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
+  }
+
+  .usp-card.is-revealed { opacity: 1; transform: translateY(0); }
+
+  .usp-card:hover { background-color: #f88800; }
+
+  .usp-card-icon {
+    display: block;
+    width: 74px;
+    height: 74px;
+    margin-bottom: 84px;
+    flex-shrink: 0;
+    background-color: #fbb866;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    transition: background-color 0.35s ease;
+  }
+
+  .usp-card:hover .usp-card-icon {
+    background-color: #ffffff;
+    animation: iconBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes iconBounce {
+    0% { transform: translateY(0); }
+    30% { transform: translateY(-10px); }
+    55% { transform: translateY(0); }
+    75% { transform: translateY(-4px); }
+    100% { transform: translateY(0); }
+  }
+
+  .usp-card-body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; gap: 16px; width: 100%; }
+
+  .usp-card-title { margin: 0; max-width: 239px; font-weight: 800; font-size: 28px; line-height: 36px; color: #111111; }
+
+  .usp-card-cta { width: 100%; height: 44px; margin-top: auto; justify-content: center; padding-left: 24px; padding-right: 24px; }
+  .usp-card:hover .usp-card-cta,
+  .usp-card-cta:hover {
+    background-color: #ffffff !important;
+    color: #111111 !important;
+  }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <h1>ATB — USP Section ("Services we offer")</h1>
+  <p>Static desktop replica of the Figma "USP section" (node 11600-3950). Section background is full-bleed and scales past 1440px — resize the window to confirm content stays pinned to the 64px edge padding while the four cards per row grow to fill the extra width.</p>
+  <p class="note">Font note: "Neue Haas Unica W1G" isn't installed in this preview environment, so text falls back to system sans-serif. Colours, spacing and the CTA button styles (from the Button component) are otherwise faithful to Figma.</p>
+</header>
+
+<section class="usp-section">
+  <div class="usp-header">
+    <div class="usp-header-left">
+      <svg class="usp-dot" viewBox="0 0 52 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle class="usp-dot-circle" cx="8" cy="8" r="8" fill="#bcbcbc" style="animation-delay:0s" />
+        <circle class="usp-dot-circle" cx="26" cy="8" r="8" fill="#717171" style="animation-delay:0.4s" />
+        <circle class="usp-dot-circle" cx="44" cy="8" r="8" fill="#f88800" style="animation-delay:0.8s" />
+      </svg>
+      <h2 class="usp-title">Services we offer.</h2>
+      <p class="usp-subtitle">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent fringilla ante non luctus pretium. Nam purus lectus, ultrices sed luctus nec.</p>
+    </div>
+    <a class="btn btn--primary btn--lg mode-light" href="#">
+      <span class="btn__label"><span class="btn__label-track"><span>View all claim types</span><span>View all claim types</span></span></span>
+      <span class="btn__icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16.175 13.0001H5C4.71667 13.0001 4.47917 12.9043 4.2875 12.7126C4.09583 12.5209 4 12.2834 4 12.0001C4 11.7168 4.09583 11.4793 4.2875 11.2876C4.47917 11.0959 4.71667 11.0001 5 11.0001H16.175L11.275 6.10011C11.075 5.90011 10.9792 5.66678 10.9875 5.40011C10.9958 5.13344 11.1 4.90011 11.3 4.70011C11.5 4.51678 11.7333 4.42094 12 4.41261C12.2667 4.40428 12.5 4.50011 12.7 4.70011L19.3 11.3001C19.4 11.4001 19.4708 11.5084 19.5125 11.6251C19.5542 11.7418 19.575 11.8668 19.575 12.0001C19.575 12.1334 19.5542 12.2584 19.5125 12.3751C19.4708 12.4918 19.4 12.6001 19.3 12.7001L12.7 19.3001C12.5167 19.4834 12.2875 19.5751 12.0125 19.5751C11.7375 19.5751 11.5 19.4834 11.3 19.3001C11.1 19.1001 11 18.8626 11 18.5876C11 18.3126 11.1 18.0751 11.3 17.8751L16.175 13.0001Z" fill="currentColor"/>
+        </svg>
+      </span>
+    </a>
+  </div>
+
+  <div class="usp-cards-wrap" id="usp-cards"></div>
+</section>
+
+<script>
+  const CLAIM_TYPES = [
+    ["Institutional & Sexual Abuse", "Stop"],
+    ["Road Accidents & TAC", "Car"],
+    ["Workers Compensation", "Construction"],
+    ["Public Place Injury", "Fall"],
+    ["Medical Negligence", "Medical"],
+    ["Superannuation", "Superannuation"],
+    ["Class Action", "Gavel"],
+    ["Asbestos / Silicosis Claims", "Warning"],
+  ];
+
+  function card([title, icon], i) {
+    return `<div class="usp-card" style="--reveal-delay:${i * 100}ms">
+      <div class="usp-card-icon" style="-webkit-mask-image:url(Assets/Icons/${icon}.svg);mask-image:url(Assets/Icons/${icon}.svg)"></div>
+      <div class="usp-card-body">
+        <p class="usp-card-title">${title}</p>
+        <a class="btn btn--primary btn--sm mode-light usp-card-cta" href="#">
+          <span class="btn__label"><span class="btn__label-track"><span>Learn more</span><span>Learn more</span></span></span>
+        </a>
+      </div>
+    </div>`;
+  }
+
+  const rows = [CLAIM_TYPES.slice(0, 4), CLAIM_TYPES.slice(4, 8)];
+  document.getElementById("usp-cards").innerHTML = rows
+    .map((row, r) => `<div class="usp-cards-row">${row.map((item, i) => card(item, r * 4 + i)).join("")}</div>`)
+    .join("");
+
+  const cardsWrap = document.getElementById("usp-cards");
+  const allCards = cardsWrap.querySelectorAll(".usp-card");
+
+  const observer = new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) {
+      allCards.forEach(c => c.classList.add("is-revealed"));
+      observer.disconnect();
+    }
+  }, { threshold: 0.2 });
+  observer.observe(cardsWrap);
+</script>
+</body>
+</html>
