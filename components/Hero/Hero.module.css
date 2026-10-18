@@ -219,12 +219,12 @@
   align-items: center;
 }
 
-/* Floating "Play video" trigger. Bottom is 64px + the 20px the trust bar
+/* Floating "Play video" trigger. Bottom is 64px + the 32px the trust bar
    overlaps the hero by, so the visible gap matches the 64px gap to the right. */
 .play {
   position: absolute;
   right: 64px;
-  bottom: 84px;
+  bottom: 96px;
   z-index: 2;
   display: inline-flex;
   align-items: center;
@@ -256,7 +256,10 @@
 .trustBar {
   position: relative;
   z-index: 2;
-  margin-top: -20px;
+  /* Must be at least the 32px corner radius below, or the bottom of the
+     rounded corner lands past the hero and the page background shows
+     through as a white notch at each top corner. */
+  margin-top: -32px;
   background: var(--colour-grey-700);
   border-radius: 32px 32px 0 0;
   min-height: 96px;
