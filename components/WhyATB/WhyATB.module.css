@@ -45,14 +45,19 @@
 .section *::before,
 .section *::after { box-sizing: border-box; }
 
-/* Content Container (11636:18248) — 1392px at a 1440 frame, capped at 1920 */
+/* Content Container (11636:18248) — 1392px at a 1440 frame.
+   The node carries max-w-[1920px], but that cap never binds inside Figma's
+   own 1920 frame: there the container just fills to the section's 24px
+   gutter. Porting the cap literally made it stop growing past ~1968px and
+   centre instead, stranding the card hundreds of px short of the gutter
+   while the USP section above kept extending. Dropped so the gutter stays
+   24px at any width, which is what the design actually shows. */
 .card {
   display: flex;
   flex: 1 0 0;
   flex-direction: column;
   gap: var(--spacing-800);
   min-width: 0;
-  max-width: 1920px;
   padding: 64px 40px 40px;
   overflow: clip;
   background: var(--colour-grey-50);
@@ -142,7 +147,10 @@
 .imageAndUsps {
   display: flex;
   align-items: stretch;
-  gap: var(--spacing-1200);
+  /* 64px per the node, not 96px. The wider gap ate into the image, leaving it
+     546px at a 1440 frame; at 64px the row lands exactly on the Figma spec —
+     560 image + 64 gap + 688 USP column = the 1312px content box. */
+  gap: var(--spacing-800);
   width: 100%;
 }
 
