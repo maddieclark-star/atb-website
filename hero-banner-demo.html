@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ATB — Hero Banner</title>
+<script>
+  // Set before first paint so the headline's pre-reveal (blurred) state is
+  // only ever applied when JS is around to take it back off again.
+  document.documentElement.classList.add("has-js");
+</script>
+<style>
+  :root {
+    --btn-font: "Neue Haas Unica W1G", "Helvetica Neue", Arial, sans-serif;
+    --heading-font: "Neue Haas Unica W1G", "Helvetica Neue", Arial, sans-serif;
+    --body-font: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --duration: 0.35s;
+    --ease: cubic-bezier(.65, 0, .35, 1);
+    --line-h: 24px;
+
+    --colour-orange: #f88800;
+    --colour-grey-100: #e5e5e5;
+    --colour-grey-300: #b9b9b9;
+    --colour-grey-400: #999999;
+    --colour-grey-700: #454545;
+    --colour-black: #111111;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: var(--body-font);
+    background: #0b0b0b;
+    color: #111;
+  }
+
+  header.page-head {
+    padding: 28px 40px;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background: #f4f4f4;
+  }
+  header.page-head h1 { margin: 0 0 4px; font-size: 20px; color: #111; }
+  header.page-head p { margin: 0; color: #555; font-size: 13px; max-width: 820px; line-height: 1.5; }
+  header.page-head p.note { margin-top: 8px; color: #a85b00; }
+
+  /* =========================================================
+     Hero banner
+  ========================================================= */
+  .hero {
+    position: relative;
+    width: 100%;
+    min-height: 888px;
+    background: #111111;
+    overflow: hidden;
+    isolation: isolate;
+    /* Declared here (not on the image) so every layer that needs to move
+       with the parallax — the sharp photo and all the blurred copies —
+       inherits the same value from one place. JS writes to this. */
+    --parallax-y: 0px;
+  }
+
+  .hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .hero__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Two independent rightward pans, both at the SAME zoom level
+       (scale stays 1.3 — the subject's on-screen size is unchanged):
+         1. object-position 62% → 0% pans the photo inside its frame,
+            worth ~6% of viewport width at 1440.
+         2. translateX 4% → 11.3% slides the whole frame right, worth
+            ~9.5%, which is the hard ceiling — scale(1.3) only overhangs
+            the container by 15% per side, and 11.3% leaves ~5px of that
+            margin spare so no background shows through at any width.
+       Combined ≈ 15.5% at 1440. A full 20% isn't reachable without
+       raising the scale (i.e. zooming in). */
+    object-position: 0% 8%;
+    display: block;
+    /* --parallax-y is driven by JS on scroll (declared on .hero). It rides
+       inside the same transform as the pan above, so the X position is
+       never disturbed. Both translations get multiplied by the 1.3 scale,
+       and scale(1.3) overhangs the container by 133px vertically, so the
+       ±70px range (≈91px once scaled) stays well inside the image. */
+    transform: scale(1.3) translateX(11.3%) translateY(var(--parallax-y));
+  }
+
+  /* Darkening tint — keeps the headline column legible over the photo.
+     LHS carries the extra darkening (now +30% again over the previous
+     pass: 0.3→0.39, 0.72→0.936) since the secondary button's outline
+     wasn't reading clearly against the image; RHS stays at the original
+     0.45 peak since there's no text over there. Still fades fully to
+     transparent at the inner edge so it blends seamlessly into the
+     sharp image. */
+  .hero__tint {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .hero__tint--left {
+    left: 0;
+    width: 851px;
+    max-width: 62%;
+    background: linear-gradient(
+      to left,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.39) 23.418%,
+      rgba(0, 0, 0, 0.936) 100%
+    );
+  }
+  .hero__tint--right {
+    right: 0;
+    width: 420px;
+    max-width: 30%;
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0) 0%,
+      rgba(0, 0, 0, 0.45) 100%
+    );
+  }
+
+  /* Progressive blur — stacked layers of decreasing blur radius, each
+     masked to fade to 0% before its own inner edge, so the blur tapers
+     smoothly into the sharp image instead of cutting off at a hard edge.
+
+     These are BLURRED COPIES of the hero photo, not backdrop-filter.
+     backdrop-filter samples whatever is painted behind the element, which
+     meant it could pull in the page above the hero and the clipped
+     viewport edge once scrolled — that's what put a grey wash in the top
+     corners. A copy can only ever contain the photo, so there is nothing
+     foreign left to sample. */
+  .hero__blur {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .hero__blur img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 0% 8%;
+    display: block;
+  }
+  /* Each copy is scaled just past its own blur radius so the soft edge the
+     blur creates stays outside the hero at every parallax position —
+     overhang (888·(s−1)/2) must clear travel (70·s) + radius (r·s).
+     The lightest layer sits at 1.3, identical to the sharp photo, so the
+     layer most likely to reveal a mismatch is in exact sync. */
+  .hero__blur--l3 img { filter: blur(16px); transform: scale(1.30) translateX(11.3%) translateY(var(--parallax-y)); }
+  .hero__blur--r2 img { filter: blur(22px); transform: scale(1.32) translateX(11.3%) translateY(var(--parallax-y)); }
+  .hero__blur--l2 img { filter: blur(36px); transform: scale(1.35) translateX(11.3%) translateY(var(--parallax-y)); }
+  .hero__blur--r1 img { filter: blur(48px); transform: scale(1.40) translateX(11.3%) translateY(var(--parallax-y)); }
+  .hero__blur--l1 img { filter: blur(60px); transform: scale(1.45) translateX(11.3%) translateY(var(--parallax-y)); }
+
+  /* Masks now run across the full hero width, with the falloff distances
+     carried over from the old fixed-width layers (e.g. l1 was 280px wide
+     and held full strength for its first 30% → opaque to 84px, gone by
+     280px). Right-hand layers measure from the right edge. */
+  .hero__blur--l1 {
+    mask-image: linear-gradient(to right, #000 0px, #000 84px, transparent 280px);
+    -webkit-mask-image: linear-gradient(to right, #000 0px, #000 84px, transparent 280px);
+  }
+  .hero__blur--l2 {
+    mask-image: linear-gradient(to right, #000 0px, #000 157px, transparent 560px);
+    -webkit-mask-image: linear-gradient(to right, #000 0px, #000 157px, transparent 560px);
+  }
+  .hero__blur--l3 {
+    mask-image: linear-gradient(to right, #000 0px, #000 194px, transparent 880px);
+    -webkit-mask-image: linear-gradient(to right, #000 0px, #000 194px, transparent 880px);
+  }
+  .hero__blur--r1 {
+    mask-image: linear-gradient(to left, #000 0px, #000 48px, transparent 160px);
+    -webkit-mask-image: linear-gradient(to left, #000 0px, #000 48px, transparent 160px);
+  }
+  .hero__blur--r2 {
+    mask-image: linear-gradient(to left, #000 0px, #000 119px, transparent 340px);
+    -webkit-mask-image: linear-gradient(to left, #000 0px, #000 119px, transparent 340px);
+  }
+
+  .hero__inner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    /* Symmetric top/bottom padding (was 240/120) so align-items: center
+       lands the content on the true vertical middle of the image instead
+       of being pulled down by Figma's asymmetric pt-240/pb-120 spacing. */
+    padding: 24px 24px 24px 64px;
+    min-height: 888px;
+  }
+
+  .hero__content {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 0 64px 0 0;
+  }
+
+  .hero__headline-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  .hero__eyebrow-group {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .hero__dot {
+    width: 50px;
+    height: 16px;
+    display: block;
+    overflow: visible;
+  }
+  /* Dot device — the staggered infinite bounce carried over from the USP
+     section. Inline SVG rather than an <img> so each circle can carry its
+     own delay. */
+  .hero__dot-circle {
+    transform-origin: center;
+    transform-box: fill-box;
+    animation: heroDotBounce 2.4s ease-in-out infinite;
+  }
+  @keyframes heroDotBounce {
+    0%, 20%, 100% { transform: translateY(0); }
+    8.33% { transform: translateY(-5px); }
+  }
+  .hero__dot-circle:nth-child(1) { animation-delay: 0s; }
+  .hero__dot-circle:nth-child(2) { animation-delay: 0.4s; }
+  .hero__dot-circle:nth-child(3) { animation-delay: 0.8s; }
+  /* With JS present the headline reveal runs first — its last line starts
+     at 0.53s and takes 0.95s, so hold the bounce until ~1.5s and keep the
+     same 0.4s stagger from there. Without JS there's no reveal to wait on,
+     so the delays above apply unchanged. */
+  .has-js .hero__dot-circle:nth-child(1) { animation-delay: 1.5s; }
+  .has-js .hero__dot-circle:nth-child(2) { animation-delay: 1.9s; }
+  .has-js .hero__dot-circle:nth-child(3) { animation-delay: 2.3s; }
+
+  .hero__headline {
+    margin: 0;
+    font-family: var(--heading-font);
+    font-weight: 800;
+    font-size: 56px;
+    line-height: 60px;
+  }
+  .hero__headline span { display: block; }
+  .hero__headline .is-accent { color: var(--colour-orange); }
+  .hero__headline .is-muted { color: var(--colour-grey-400); }
+  .hero__headline .is-primary { color: #ffffff; }
+
+  /* Blur reveal — each headline line resolves from blurred to sharp on
+     load, after a short beat, staggered top to bottom. Gated on .has-js
+     so the copy is never left invisible if the script doesn't run. */
+  .has-js .hero__headline span {
+    filter: blur(14px);
+    opacity: 0;
+    transform: translateY(14px);
+    transition:
+      filter 0.95s cubic-bezier(.22, .61, .25, 1),
+      opacity 0.95s cubic-bezier(.22, .61, .25, 1),
+      transform 0.95s cubic-bezier(.22, .61, .25, 1);
+  }
+  .has-js .hero.is-revealed .hero__headline span {
+    filter: blur(0);
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .has-js .hero.is-revealed .hero__headline span:nth-child(1) { transition-delay: 0.25s; }
+  .has-js .hero.is-revealed .hero__headline span:nth-child(2) { transition-delay: 0.39s; }
+  .has-js .hero.is-revealed .hero__headline span:nth-child(3) { transition-delay: 0.53s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .has-js .hero__headline span {
+      filter: none;
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+    .hero__dot-circle { animation: none; }
+  }
+
+  .hero__intro {
+    margin: 0;
+    max-width: 574px;
+    font-family: var(--body-font);
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 32px;
+    color: var(--colour-grey-100);
+  }
+
+  .hero__ctas {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  /* Floating "Play video" trigger — static visual, no pill background.
+     Sits on the same 64px gutter as the headline column on the left.
+     Padding is dropped so the box edge is the visual edge; bottom is
+     64px + the 20px the USP bar overlaps the hero by, so the gap you
+     actually see above the bar matches the 64px gap to the right. */
+  .hero__play {
+    position: absolute;
+    right: 64px;
+    bottom: 84px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--btn-font);
+    font-weight: 700;
+    font-size: 16px;
+    color: #ffffff;
+  }
+  .hero__play .hero__play-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 1000px;
+    background: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .hero__play .hero__play-icon img { width: 24px; height: 24px; }
+
+  /* =========================================================
+     USP bar
+  ========================================================= */
+  .usp-bar {
+    position: relative;
+    z-index: 2;
+    margin-top: -20px;
+    background: var(--colour-grey-700);
+    border-radius: 32px 32px 0 0;
+    min-height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 80px;
+    padding: 24px 32px;
+  }
+  .usp-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .usp-item img { width: 48px; height: 48px; display: block; }
+  .usp-item span {
+    font-family: var(--heading-font);
+    font-weight: 800;
+    font-size: 20px;
+    line-height: 28px;
+    color: #ffffff;
+    white-space: nowrap;
+  }
+  .usp-divider { width: 8px; height: 8px; display: block; }
+
+  /* Demo-only: gives the page enough height to actually scroll so the
+     parallax is observable. Delete when porting the banner. */
+  .scroll-spacer {
+    height: 120vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0b0b0b;
+    color: #5a5a5a;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* =========================================================
+     Video modal (Figma node 11719:2206)
+     Built on <dialog> + showModal() so Escape-to-close, the focus
+     trap and making the page behind inert are the browser's own
+     behaviour rather than hand-rolled JS.
+  ========================================================= */
+  .video-modal {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    max-height: 100vh;
+    margin: 0;
+    padding: 52px;
+    border: none;
+    background: rgba(46, 46, 46, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    overflow: hidden;
+  }
+  /* The UA sheet hides a closed dialog; only take over display when open.
+     Entry is a CSS animation rather than a JS class toggle so it can't get
+     stuck invisible if a frame never lands — and `both` means that if
+     animations don't run at all, the modal simply appears at full opacity. */
+  .video-modal[open] {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: videoModalIn 0.35s ease both;
+  }
+  /* Exit — the dialog would otherwise vanish instantly, which is what made
+     dismissing feel abrupt next to the fade on the way in. */
+  .video-modal.is-closing {
+    animation: videoModalOut 0.28s ease both;
+  }
+  @keyframes videoModalIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes videoModalOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+  }
+  /* The tint lives on the dialog itself, so the real backdrop stays clear. */
+  .video-modal::backdrop { background: transparent; }
+
+  .video-modal__close {
+    position: absolute;
+    top: 18px;
+    right: 21px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    z-index: 2;
+    border-radius: 50%;
+    transition: transform 0.2s var(--ease), opacity 0.2s var(--ease);
+  }
+  .video-modal__close img { width: 100%; height: 100%; display: block; }
+  .video-modal__close:hover { transform: scale(1.08); }
+  .video-modal__close:focus-visible { outline: 2px solid var(--colour-orange); outline-offset: 3px; }
+
+  /* 16:9, filling the padded area but never taller than it. */
+  .video-modal__stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    max-width: calc((100vh - 104px) * 16 / 9);
+    max-height: calc(100vh - 104px);
+    background: #000000;
+    overflow: hidden;
+  }
+  .video-modal__video {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #000000;
+  }
+
+  /* Centre play affordance — hidden once playback starts, at which point
+     the browser's own controls take over. */
+  .video-modal__play {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    background: var(--colour-orange);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+    /* Eases the scale back down when the pointer leaves and the pulse
+       animation is removed. */
+    transition: transform 0.2s var(--ease);
+  }
+  /* Inline SVG rather than an <img> so the glyph can take its colour from
+     CSS — the exported Play.svg has its fill hard-coded to #111111. */
+  .video-modal__play svg {
+    width: 44px;
+    height: 44px;
+    display: block;
+    margin-left: 3px; /* optically centres the triangle */
+    color: var(--colour-black);
+  }
+  /* Hover is motion only — the orange fill and black glyph both hold. */
+  .video-modal__play:hover {
+    animation: playPulse 1.3s ease-in-out infinite;
+  }
+  @keyframes playPulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.08); }
+  }
+  .video-modal__play:focus-visible { outline: 2px solid var(--colour-orange); outline-offset: 4px; }
+  .video-modal.is-playing .video-modal__play { display: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .video-modal[open],
+    .video-modal.is-closing { animation: none; }
+    .video-modal__close,
+    .video-modal__play { transition: none; }
+    .video-modal__play:hover { animation: none; }
+  }
+
+  /* =========================================================
+     Buttons — ported from the ATB "Buttons C2" component set
+     (see button-styles-demo.html for the full variant matrix)
+  ========================================================= */
+  .btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    border-radius: 1000px;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--btn-font);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    width: fit-content;
+    transition:
+      background-color var(--duration) var(--ease),
+      border-color var(--duration) var(--ease),
+      color var(--duration) var(--ease);
+  }
+  .btn:focus-visible { outline: 2px solid var(--colour-orange); outline-offset: 2px; }
+
+  .btn__label { overflow: hidden; height: var(--line-h); display: flex; align-items: flex-start; }
+  .btn__label-track {
+    display: flex;
+    flex-direction: column;
+    transform: translateY(0);
+    transition: transform var(--duration) var(--ease);
+  }
+  .btn__label-track span { height: var(--line-h); line-height: var(--line-h); display: block; }
+  .btn:hover .btn__label-track { transform: translateY(calc(-1 * var(--line-h))); }
+
+  .btn__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    flex-shrink: 0;
+    transition: background-color var(--duration) var(--ease), color var(--duration) var(--ease);
+  }
+  .btn__icon svg { display: block; }
+
+  .btn--lg { padding: 4px 4px 4px 24px; font-size: 18px; }
+  .btn--lg .btn__icon { width: 48px; height: 48px; }
+  .btn--lg .btn__icon svg { width: 24px; height: 24px; }
+  .btn--lg.btn--no-icon { padding: 4px 24px; height: 56px; }
+
+  /* Primary / light mode — used for the orange "Call" CTA */
+  .btn--primary.btn--light { background: var(--colour-orange); color: var(--colour-black); }
+  .btn--primary.btn--light .btn__icon { background: var(--colour-black); color: #ffffff; }
+  .btn--primary.btn--light:hover {
+    background: var(--colour-black);
+    color: #ffffff;
+    border-color: var(--colour-grey-300);
+  }
+  .btn--primary.btn--light:hover .btn__icon { background: var(--colour-orange); color: var(--colour-black); }
+
+  /* Secondary / dark mode, no icon — used for "Speak with a lawyer" over the image */
+  .btn--secondary.btn--dark { background: transparent; color: #ffffff; border-color: var(--colour-grey-300); }
+  .btn--secondary.btn--dark:hover {
+    background: var(--colour-orange);
+    color: var(--colour-black);
+    border-color: transparent;
+  }
+
+  /* =========================================================
+     Page shell — lets the hero expand full-bleed beyond 1440px
+     while the text column stays pinned at its designed width.
+  ========================================================= */
+  .page { width: 100%; }
+</style>
+</head>
+<body>
+
+<header class="page-head">
+  <h1>ATB — Hero banner</h1>
+  <p>Desktop replica of the Figma hero banner (node 11719:2255). The background photo and progressive-blur scrims are full-bleed so the section fills any viewport wider than 1440px; the headline/CTA column stays pinned to its designed width and left padding.</p>
+  <p class="note">Font note: "Neue Haas Unica W1G" isn't installed in this preview environment, so headings/buttons fall back to a system sans-serif — swap in the real font file via @font-face once available. Colours, spacing and motion are otherwise faithful to the Figma file.</p>
+</header>
+
+<div class="page">
+  <section class="hero">
+    <div class="hero__media">
+      <img src="Assets/Hero banner image.jpeg" alt="ATB lawyer client wearing hard hat and safety gear, using a tablet on a job site" />
+    </div>
+    <!-- Blurred copies of the photo, weakest first so the strongest sits on
+         top. The tints come after these so they darken the blurred result. -->
+    <div class="hero__blur hero__blur--l3" aria-hidden="true"><img src="Assets/Hero banner image.jpeg" alt="" /></div>
+    <div class="hero__blur hero__blur--l2" aria-hidden="true"><img src="Assets/Hero banner image.jpeg" alt="" /></div>
+    <div class="hero__blur hero__blur--l1" aria-hidden="true"><img src="Assets/Hero banner image.jpeg" alt="" /></div>
+    <div class="hero__blur hero__blur--r2" aria-hidden="true"><img src="Assets/Hero banner image.jpeg" alt="" /></div>
+    <div class="hero__blur hero__blur--r1" aria-hidden="true"><img src="Assets/Hero banner image.jpeg" alt="" /></div>
+
+    <div class="hero__tint hero__tint--left"></div>
+    <div class="hero__tint hero__tint--right"></div>
+
+    <div class="hero__inner">
+      <div class="hero__content">
+        <div class="hero__headline-wrap">
+          <div class="hero__eyebrow-group">
+            <svg class="hero__dot" viewBox="0 0 52 16" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <circle class="hero__dot-circle" cx="8" cy="8" r="8" fill="#bcbcbc" />
+              <circle class="hero__dot-circle" cx="26" cy="8" r="8" fill="#717171" />
+              <circle class="hero__dot-circle" cx="44" cy="8" r="8" fill="#f88800" />
+            </svg>
+            <h1 class="hero__headline">
+              <span class="is-accent">Talk to a lawyer</span>
+              <span class="is-muted">who works for you,</span>
+              <span class="is-primary">not the system.</span>
+            </h1>
+          </div>
+          <p class="hero__intro">If you’ve been injured, abused, or treated unfairly, our lawyers will help you understand your options.</p>
+        </div>
+
+        <div class="hero__ctas">
+          <a href="tel:1300333300" class="btn btn--primary btn--light btn--lg">
+            <span class="btn__label">
+              <span class="btn__label-track"><span>Call 1300 333 300</span><span>Call 1300 333 300</span></span>
+            </span>
+            <span class="btn__icon">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16.175 13.0001H5C4.71667 13.0001 4.47917 12.9043 4.2875 12.7126C4.09583 12.5209 4 12.2834 4 12.0001C4 11.7168 4.09583 11.4793 4.2875 11.2876C4.47917 11.0959 4.71667 11.0001 5 11.0001H16.175L11.275 6.10011C11.075 5.90011 10.9792 5.66678 10.9875 5.40011C10.9958 5.13344 11.1 4.90011 11.3 4.70011C11.5 4.51678 11.7333 4.42094 12 4.41261C12.2667 4.40428 12.5 4.50011 12.7 4.70011L19.3 11.3001C19.4 11.4001 19.4708 11.5084 19.5125 11.6251C19.5542 11.7418 19.575 11.8668 19.575 12.0001C19.575 12.1334 19.5542 12.2584 19.5125 12.3751C19.4708 12.4918 19.4 12.6001 19.3 12.7001L12.7 19.3001C12.5167 19.4834 12.2875 19.5751 12.0125 19.5751C11.7375 19.5751 11.5 19.4834 11.3 19.3001C11.1 19.1001 11 18.8626 11 18.5876C11 18.3126 11.1 18.0751 11.3 17.8751L16.175 13.0001Z" fill="currentColor"/>
+              </svg>
+            </span>
+          </a>
+
+          <a href="#" class="btn btn--secondary btn--dark btn--lg btn--no-icon">
+            <span class="btn__label">
+              <span class="btn__label-track"><span>Speak with a lawyer</span><span>Speak with a lawyer</span></span>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="hero__play" aria-label="Play video" aria-haspopup="dialog">
+      <span>Play video</span>
+      <span class="hero__play-icon">
+        <img src="Assets/Icons/Play.svg" alt="" />
+      </span>
+    </button>
+  </section>
+
+  <div class="usp-bar">
+    <div class="usp-item">
+      <img src="Assets/Icons/Seal check.svg" alt="" />
+      <span>No win, no fee</span>
+    </div>
+    <img class="usp-divider" src="Assets/Icons/Divider dot.svg" alt="" />
+    <div class="usp-item">
+      <img src="Assets/Icons/File lock.svg" alt="" />
+      <span>Confidential consultation</span>
+    </div>
+    <img class="usp-divider" src="Assets/Icons/Divider dot.svg" alt="" />
+    <div class="usp-item">
+      <img src="Assets/Icons/Piggy bank.svg" alt="" />
+      <span>No upfront costs</span>
+    </div>
+  </div>
+
+  <div class="scroll-spacer">scroll to see the parallax — demo scroll area, not part of the banner</div>
+</div>
+
+<dialog class="video-modal" id="videoModal" aria-label="ATB video">
+  <button type="button" class="video-modal__close" data-close aria-label="Close video">
+    <img src="Assets/Icons/Cross.svg" alt="" />
+  </button>
+  <div class="video-modal__stage">
+    <video
+      class="video-modal__video"
+      id="videoModalPlayer"
+      src="Assets/WorkCover 1 W_CLOSED CAPTIONS (1) (1) (1).mp4#t=0.1"
+      preload="metadata"
+      playsinline
+    ></video>
+    <button type="button" class="video-modal__play" id="videoModalPlay" aria-label="Play">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M8 17.175V6.825C8 6.54167 8.1 6.30417 8.3 6.1125C8.5 5.92083 8.73333 5.825 9 5.825C9.08333 5.825 9.17083 5.8375 9.2625 5.8625C9.35417 5.8875 9.44167 5.925 9.525 5.975L17.675 11.15C17.825 11.25 17.9375 11.375 18.0125 11.525C18.0875 11.675 18.125 11.8333 18.125 12C18.125 12.1667 18.0875 12.325 18.0125 12.475C17.9375 12.625 17.825 12.75 17.675 12.85L9.525 18.025C9.44167 18.075 9.35417 18.1125 9.2625 18.1375C9.17083 18.1625 9.08333 18.175 9 18.175C8.73333 18.175 8.5 18.0792 8.3 17.8875C8.1 17.6958 8 17.4583 8 17.175ZM10 15.35L15.25 12L10 8.65V15.35Z" fill="currentColor"/>
+      </svg>
+    </button>
+  </div>
+</dialog>
+
+<script>
+  (function () {
+    var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var hero = document.querySelector(".hero");
+
+    // --- Headline blur reveal (on load, slightly delayed, staggered) ---
+    function reveal() {
+      hero.classList.add("is-revealed");
+    }
+    // Two rAFs so the pre-reveal state is painted first and the transition
+    // actually runs rather than being collapsed into the initial render.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(reveal);
+    });
+    // Safety net: rAF never fires in a background tab, and the headline is
+    // fully transparent until it does. A timer guarantees the copy shows up
+    // even if frames never come. Adding the class twice is a no-op.
+    setTimeout(reveal, 400);
+
+    if (reduced) return;
+
+    // --- Hero image parallax on scroll ---
+    // The image lags the page: it sits high while the hero is below the
+    // fold and drifts down as the hero scrolls past, so it travels slower
+    // than the surrounding content.
+    var RANGE = 70;
+    var ticking = false;
+
+    function update() {
+      var r = hero.getBoundingClientRect();
+      var vh = window.innerHeight;
+      // -1 when the hero is fully below the viewport, +1 when fully above.
+      var n = (r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2);
+      var clamped = Math.max(-1, Math.min(1, n));
+      // Written on .hero so the sharp photo and every blurred copy move together.
+      hero.style.setProperty("--parallax-y", (-clamped * RANGE).toFixed(1) + "px");
+      ticking = false;
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
+  })();
+
+  // --- Video modal -------------------------------------------------------
+  // Separate from the motion block above on purpose: that one bails out
+  // under prefers-reduced-motion, and the modal still has to work.
+  (function () {
+    var trigger = document.querySelector(".hero__play");
+    var modal = document.getElementById("videoModal");
+    var video = document.getElementById("videoModalPlayer");
+    var playBtn = document.getElementById("videoModalPlay");
+    var stage = modal.querySelector(".video-modal__stage");
+
+    // <dialog> is widely supported, but if showModal is missing leave the
+    // trigger inert rather than opening a modal that can't be closed.
+    if (!modal.showModal) {
+      trigger.hidden = true;
+      return;
+    }
+
+    function open() {
+      modal.showModal();
+      document.body.style.overflow = "hidden";
+      playBtn.focus();
+    }
+
+    // Idempotent, so it's safe to run from several dismissal paths at once.
+    function teardown() {
+      video.pause();
+      video.currentTime = 0;
+      video.controls = false;
+      modal.classList.remove("is-playing");
+      document.body.style.overflow = "";
+    }
+
+    var prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    var closing = false;
+
+    function finishClose() {
+      if (!closing) return;
+      closing = false;
+      modal.removeEventListener("animationend", onFadeEnd);
+      modal.classList.remove("is-closing");
+      if (modal.open) modal.close();
+      teardown();
+      trigger.focus();
+    }
+
+    function onFadeEnd(e) {
+      // Guard on the name: closing during the entry fade would otherwise let
+      // videoModalIn's own animationend cut the exit short.
+      if (e.animationName === "videoModalOut") finishClose();
+    }
+
+    function closeModal() {
+      if (!modal.open) {
+        teardown();
+        return;
+      }
+      if (closing) return;
+      closing = true;
+
+      // Cut audio straight away — the fade is purely visual, there's no
+      // reason for sound to keep playing over the page while it runs.
+      video.pause();
+
+      if (prefersReduced.matches) {
+        finishClose();
+        return;
+      }
+
+      modal.classList.add("is-closing");
+      modal.addEventListener("animationend", onFadeEnd);
+      // Backstop: animationend won't arrive if animations are disabled or no
+      // frame lands, and the modal must never be left stuck open.
+      setTimeout(finishClose, 400);
+    }
+
+    function startPlayback() {
+      modal.classList.add("is-playing");
+      video.controls = true;
+      var p = video.play();
+      // Autoplay policies reject play() in some states; fall back to the
+      // native controls rather than leaving a dead overlay.
+      if (p && p.catch) {
+        p.catch(function () {
+          modal.classList.remove("is-playing");
+        });
+      }
+    }
+
+    trigger.addEventListener("click", open);
+    playBtn.addEventListener("click", startPlayback);
+
+    modal.querySelector("[data-close]").addEventListener("click", closeModal);
+
+    // Anything outside the video itself dismisses — the padded area around
+    // the stage is the dialog element, so a click landing on it counts.
+    modal.addEventListener("click", function (e) {
+      if (!stage.contains(e.target)) closeModal();
+    });
+
+    // Escape is handled explicitly rather than leaning on the dialog's own
+    // close/cancel events: those are spec'd but don't fire in every engine,
+    // and if they're missed the video keeps playing with audio over the
+    // page. Teardown is idempotent, so doing it here as well as in the
+    // listener below is harmless.
+    modal.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeModal();
+    });
+
+    // Backstop for any dismissal path that closes the dialog without going
+    // through closeModal (e.g. a form submit, or a browser that closes it
+    // natively before our keydown runs).
+    modal.addEventListener("close", teardown);
+  })();
+</script>
+
+</body>
+</html>
