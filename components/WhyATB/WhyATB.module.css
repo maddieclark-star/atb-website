@@ -1,0 +1,305 @@
+/* ------------------------------------------------------------------
+   Neue Haas Unica W1G — drop the font files into ./fonts/ using these
+   exact names and the design becomes pixel-exact. Until then the stack
+   falls back to Manrope (Figma's own declared fallback), then system sans.
+   ------------------------------------------------------------------ */
+@font-face {
+  font-family: "Neue Haas Unica W1G";
+  src: url("./fonts/NeueHaasUnicaW1G-Heavy.woff2") format("woff2"),
+       url("./fonts/NeueHaasUnicaW1G-Heavy.woff") format("woff");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Neue Haas Unica W1G";
+  src: url("./fonts/NeueHaasUnicaW1G-Medium.woff2") format("woff2"),
+       url("./fonts/NeueHaasUnicaW1G-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+.section {
+  /* Figma variables, node 11636:18247 */
+  --colour-grey-800: #2e2e2e;
+  --colour-grey-700: #454545;
+  --colour-grey-50: #f2f2f2;
+  --surface-accent-dark: #f88800;
+  --text-primary: #111111;
+
+  --spacing-100: 8px;
+  --spacing-150: 12px;
+  --spacing-400: 32px;
+  --spacing-600: 48px;
+  --spacing-800: 64px;
+  --spacing-1200: 96px;
+
+  --size-heading-h1: 56px;   --line-height-heading-h1: 60px;
+  --size-heading-h2: 44px;   --line-height-heading-h2: 48px;
+  --size-heading-h5: 24px;   --line-height-heading-h5: 32px;
+  /* Body/Lg Body — the node uses this for sub-copy */
+  --size-body-lg: 20px;      --line-height-body-lg: 28px;
+
+  /* Review deviations from Figma */
+  --size-usp-title: 28px;    --line-height-usp-title: 36px;  /* was h5 24/32 */
+  --usp-card-padding-y: var(--spacing-600);                   /* was 32px */
+
+  --font-heading: "Neue Haas Unica W1G", "Manrope", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Neue Haas Unica W1G", "Manrope", "Helvetica Neue", Arial, sans-serif;
+
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 0 24px;
+  background: linear-gradient(to bottom, var(--colour-grey-800), var(--colour-grey-700));
+}
+
+.section *,
+.section *::before,
+.section *::after { box-sizing: border-box; }
+
+/* Content Container (11636:18248) — 1392px at a 1440 frame, capped at 1920 */
+.card {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  gap: var(--spacing-800);
+  min-width: 0;
+  max-width: 1920px;
+  padding: 64px 40px 40px;
+  overflow: clip;
+  background: var(--colour-grey-50);
+  border-radius: 32px;
+}
+
+/* ---------- Top row (11636:18249) ---------- */
+.topRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 16px;
+  width: 100%;
+}
+
+.headline {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* Dot (11636:18258) — 50x16 box; the SVG runs 4% past the right edge,
+   matching Figma's inset[0_-4%_0_0] so the circles stay round. */
+.dot {
+  position: relative;
+  flex-shrink: 0;
+  width: 50px;
+  height: 16px;
+  overflow: visible;
+}
+.dot svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+  overflow: visible;
+}
+
+/* Matched to the dot motion on the USP section: a quick 5px hop peaking at
+   8.33% and settled by 20%, then a long pause across the rest of the 2.4s
+   cycle. No scale, and a 0.4s stagger so the three read as separate blips
+   rather than a rolling wave. */
+.dot path {
+  transform-box: fill-box;        /* origin per-dot, not per-SVG */
+  transform-origin: center;
+  animation: dot-bounce 2.4s ease-in-out infinite;
+}
+.dot path:nth-of-type(2) { animation-delay: 0.4s; }
+.dot path:nth-of-type(3) { animation-delay: 0.8s; }
+
+@keyframes dot-bounce {
+  0%, 20%, 100% { transform: translateY(0); }
+  8.33%         { transform: translateY(-5px); }
+}
+
+.heading {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: var(--size-heading-h2);
+  line-height: var(--line-height-heading-h2);
+  color: var(--text-primary);
+  text-align: left;
+  white-space: nowrap;
+}
+.headingAccent { color: var(--surface-accent-dark); }
+
+/* Lockup (11636:18263) — 452x132, matching the Figma node exactly.
+   `fill` reproduces the node's own non-uniform scale of the 1024x175
+   artwork (horizontal 0.4414, vertical 0.7543), which is what makes the
+   wordmark render 1.709x taller than its native proportions. Requested in
+   review so the build matches the design file. Source is 1024px wide into a
+   452px box, so it stays a downscale and renders crisply at 2x. */
+.lockup {
+  flex-shrink: 0;
+  width: 452px;
+  height: 132px;
+  max-width: 100%;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+/* ---------- Image + USPs (11636:18264) ---------- */
+.imageAndUsps {
+  display: flex;
+  align-items: stretch;
+  gap: var(--spacing-1200);
+  width: 100%;
+}
+
+/* Image (11636:18265) — width holds the Figma 560:688 ratio against the USP
+   column and scales with it. Height is driven by the row (stretch), so the
+   photo's bottom edge always lands flush with the last USP card. */
+.imageFrame {
+  position: relative;
+  flex: 560 1 0%;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+/* Absolutely positioned so the photo's intrinsic height never feeds back into
+   the row — otherwise at wide viewports it exceeds the USP stack, becomes the
+   row height, and breaks the flush bottom edge. Overscaled to 116% height and
+   anchored -8% above the frame, giving 8% of travel each way for the parallax
+   without ever exposing an edge. --parallax is set from scroll position in JS
+   and stays 0 if that never runs. */
+.photo {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -8%;
+  display: block;
+  width: 100%;
+  height: 116%;
+  object-fit: cover;
+  object-position: center;
+  transform: translate3d(0, var(--parallax, 0px), 0);
+  will-change: transform;
+}
+
+/* USP column (11636:18355) — gap 16, vertically centred beside the image */
+.uspList {
+  display: flex;
+  flex: 688 1 0%;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 16px;
+  min-width: 300px;
+}
+
+/* Number top-aligns with the title/sub-copy block, per node 11636:18355 */
+.uspCard {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-600);
+  width: 100%;
+  padding: var(--usp-card-padding-y) var(--spacing-400);
+  background: var(--surface-accent-dark);
+  border-radius: 16px;
+}
+
+/* Number (11636:18328) — 35px wide instance, centred */
+.uspNumber {
+  flex-shrink: 0;
+  width: 35px;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: var(--size-heading-h1);
+  line-height: var(--line-height-heading-h1);
+  text-align: center;
+  white-space: nowrap;
+  color: var(--text-primary);
+}
+
+.uspText {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-100);
+  min-width: 0;
+}
+
+.uspTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--spacing-150);
+  width: 100%;
+}
+
+/* At 28px and a 48px number gap, card 2's title no longer fits one line at a
+   1440 frame. `balance` splits it evenly rather than leaving a one-word
+   orphan on line two. */
+.uspTitle {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: var(--size-usp-title);
+  line-height: var(--line-height-usp-title);
+  color: var(--text-primary);
+  text-align: left;
+  text-wrap: balance;
+}
+
+/* Holds every body to exactly 2 lines at any viewport. The window where all
+   four wrap to 2 is roughly 440-700px at this size; 515px sits mid-window,
+   leaving headroom for real Neue Haas Unica metrics to differ from the
+   fallback without tipping a card to 1 or 3 lines. */
+.uspBody {
+  margin: 0;
+  max-width: 515px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--size-body-lg);
+  line-height: var(--line-height-body-lg);
+  color: var(--text-primary);
+  text-align: left;
+}
+
+/* ---------- Cascading USP reveal ---------- */
+/* 28px travel on cubic-bezier(0.16, 1, 0.3, 1), matching the USP section's
+   card reveal so the two sections decelerate identically. 220ms apart over a
+   0.9s travel so the four overlap rather than firing as separate pops. */
+.armed {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.uspList > *:nth-child(1) { transition-delay: 0ms; }
+.uspList > *:nth-child(2) { transition-delay: 220ms; }
+.uspList > *:nth-child(3) { transition-delay: 440ms; }
+.uspList > *:nth-child(4) { transition-delay: 660ms; }
+
+/* Declared after .armed so it wins at equal specificity */
+.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot path { animation: none; }
+  .photo { transform: none; }
+  .armed {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    transition-delay: 0ms;
+  }
+}
