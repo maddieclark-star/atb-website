@@ -1,24 +1,10 @@
 /* ------------------------------------------------------------------
-   Neue Haas Unica W1G — drop the font files into ./fonts/ using these
-   exact names and the design becomes pixel-exact. Until then the stack
-   falls back to Manrope (Figma's own declared fallback), then system sans.
+   Brand font comes from the Typekit kit loaded in src/app/layout.tsx, so
+   the stack leads with that family name ("neue-haas-unica"). The standalone
+   demo declared @font-face against ./fonts/NeueHaasUnicaW1G-*.woff2, but
+   those files were never added — harmless as a 404 in a static page, a hard
+   build failure once Turbopack resolves url() at compile time.
    ------------------------------------------------------------------ */
-@font-face {
-  font-family: "Neue Haas Unica W1G";
-  src: url("./fonts/NeueHaasUnicaW1G-Heavy.woff2") format("woff2"),
-       url("./fonts/NeueHaasUnicaW1G-Heavy.woff") format("woff");
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Neue Haas Unica W1G";
-  src: url("./fonts/NeueHaasUnicaW1G-Medium.woff2") format("woff2"),
-       url("./fonts/NeueHaasUnicaW1G-Medium.woff") format("woff");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
 
 .section {
   /* Figma variables, node 11636:18247 */
@@ -45,8 +31,8 @@
   --size-usp-title: 28px;    --line-height-usp-title: 36px;  /* was h5 24/32 */
   --usp-card-padding-y: var(--spacing-600);                   /* was 32px */
 
-  --font-heading: "Neue Haas Unica W1G", "Manrope", "Helvetica Neue", Arial, sans-serif;
-  --font-body: "Neue Haas Unica W1G", "Manrope", "Helvetica Neue", Arial, sans-serif;
+  --font-heading: "neue-haas-unica", "Manrope", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "neue-haas-unica", "Manrope", "Helvetica Neue", Arial, sans-serif;
 
   display: flex;
   justify-content: center;

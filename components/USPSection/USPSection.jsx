@@ -1,3 +1,5 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
 import Button from "../Button";
 import styles from "./USPSection.module.css";

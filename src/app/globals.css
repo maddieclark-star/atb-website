@@ -3,6 +3,24 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* ATB brand tokens, carried over from the prototype demos' :root. The
+     heading/button stack leads with the Typekit family loaded in layout.tsx
+     ("neue-haas-unica") rather than the demos' "Neue Haas Unica W1G", which
+     had no font files behind it and always fell back. */
+  --heading-font: "neue-haas-unica", "Helvetica Neue", Arial, sans-serif;
+  --btn-font: "neue-haas-unica", "Helvetica Neue", Arial, sans-serif;
+  --body-font: "archivo", "Archivo", "Helvetica Neue", Arial, sans-serif;
+
+  --duration: 0.35s;
+  --ease: cubic-bezier(.65, 0, .35, 1);
+
+  --colour-orange: #f88800;
+  --colour-grey-100: #e5e5e5;
+  --colour-grey-300: #b9b9b9;
+  --colour-grey-400: #999999;
+  --colour-grey-700: #454545;
+  --colour-black: #111111;
 }
 
 @theme inline {

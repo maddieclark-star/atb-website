@@ -1,5 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+"use client";
+
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import styles from "./WhyATB.module.css";
+/* Next resolves these to StaticImageData objects, not URL strings the way the
+   standalone demo's bundler did — hence the .src at each use site. */
 import noWinNoFeeLockup from "./assets/no-win-no-fee-lockup.png";
 import whyAtbPhoto from "./assets/why-atb-photo.jpg";
 
@@ -25,6 +29,12 @@ const USPS = [
     body: "No call centre. When you contact us, you’ll speak to someone who understands your situation.",
   },
 ];
+
+/* useLayoutEffect warns when React renders it on the server, but it's the
+   only hook that lands a state change before the browser paints — which is
+   what keeps the cards from flashing visible before they arm. */
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const prefersReducedMotion = () =>
   typeof window !== "undefined" &&
@@ -57,7 +67,12 @@ function DotDevice() {
  * The sync pass also covers landing with the section already in view.
  */
 function useCascadeReveal(listRef, enabled) {
-  const [revealed, setRevealed] = useState(!enabled);
+  // Starts false rather than !enabled: `enabled` is now always false on the
+  // first render (it resolves in a layout effect so SSR and hydration agree),
+  // so seeding from it would latch revealed=true for good and the cascade
+  // would never run. A card with neither class is visible anyway, which is
+  // still the right no-JS / reduced-motion fallback.
+  const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
     if (!enabled) return undefined;
@@ -171,11 +186,15 @@ function useParallax(frameRef, photoRef, enabled) {
  * flush top and bottom edge at any width.
  */
 export default function WhyATB() {
-  // Resolved once on first render so the cards never paint visible and then
-  // snap hidden. Server-side this is false, which renders them revealed.
-  const [motionEnabled] = useState(
-    () => typeof window !== "undefined" && "IntersectionObserver" in window && !prefersReducedMotion()
-  );
+  // Must start false so the first client render matches the server-rendered
+  // HTML — deciding this in the useState initializer instead makes the two
+  // disagree and React bails out of patching the tree. The layout effect
+  // re-renders with the real answer before the browser paints, so the cards
+  // still never appear visible and then snap hidden.
+  const [motionEnabled, setMotionEnabled] = useState(false);
+  useIsomorphicLayoutEffect(() => {
+    setMotionEnabled("IntersectionObserver" in window && !prefersReducedMotion());
+  }, []);
 
   const listRef = useRef(null);
   const frameRef = useRef(null);
@@ -200,12 +219,12 @@ export default function WhyATB() {
               <span className={styles.headingAccent}>Arnold Thomas &amp; Becker?</span>
             </h2>
           </div>
-          <img src={noWinNoFeeLockup} alt="No win, no fee. No fear." className={styles.lockup} />
+          <img src={noWinNoFeeLockup.src} alt="No win, no fee. No fear." className={styles.lockup} />
         </div>
 
         <div className={styles.imageAndUsps}>
           <div className={styles.imageFrame} ref={frameRef}>
-            <img src={whyAtbPhoto} alt="" className={styles.photo} ref={photoRef} />
+            <img src={whyAtbPhoto.src} alt="" className={styles.photo} ref={photoRef} />
           </div>
 
           <div className={styles.uspList} ref={listRef}>
