@@ -106,7 +106,11 @@ export default function Hero() {
   // The image lags the page: it sits high while the hero is below the fold
   // and drifts down as the hero scrolls past, so it travels slower than the
   // surrounding content.
-  useEffect(() => {
+  // Layout effect, not a plain effect: the initial position is computed from
+  // the hero's post-layout rect, and setting it before first paint (rather
+  // than after) is what stops the image snapping into place as a visible
+  // jump on arrival.
+  useIsomorphicLayoutEffect(() => {
     if (prefersReducedMotion()) return;
 
     const hero = heroRef.current;

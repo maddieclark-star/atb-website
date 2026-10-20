@@ -90,6 +90,22 @@
 .blurR1 img { filter: blur(48px); transform: scale(1.40) translateX(11.3%) translateY(var(--parallax-y)); }
 .blurL1 img { filter: blur(60px); transform: scale(1.45) translateX(11.3%) translateY(var(--parallax-y)); }
 
+/* Entrance — every layer eases down from a slightly tighter crop to its
+   resting scale on first paint, so arrival reads as a soft zoom-out rather
+   than the photo snapping straight into the parallax position. Each layer
+   keeps its own resting scale (set above) via --zoom-to; --zoom-from is
+   just that plus a fixed 0.12 so they all ease at the same rate. */
+@keyframes heroZoomOut {
+  from { transform: scale(var(--zoom-from)) translateX(11.3%) translateY(var(--parallax-y)); }
+  to   { transform: scale(var(--zoom-to)) translateX(11.3%) translateY(var(--parallax-y)); }
+}
+.hero.hasJs .media img { --zoom-from: 1.42; --zoom-to: 1.30; animation: heroZoomOut 1.4s cubic-bezier(.22, .61, .25, 1) both; }
+.hero.hasJs .blurL3 img { --zoom-from: 1.42; --zoom-to: 1.30; animation: heroZoomOut 1.4s cubic-bezier(.22, .61, .25, 1) both; }
+.hero.hasJs .blurR2 img { --zoom-from: 1.44; --zoom-to: 1.32; animation: heroZoomOut 1.4s cubic-bezier(.22, .61, .25, 1) both; }
+.hero.hasJs .blurL2 img { --zoom-from: 1.47; --zoom-to: 1.35; animation: heroZoomOut 1.4s cubic-bezier(.22, .61, .25, 1) both; }
+.hero.hasJs .blurR1 img { --zoom-from: 1.52; --zoom-to: 1.40; animation: heroZoomOut 1.4s cubic-bezier(.22, .61, .25, 1) both; }
+.hero.hasJs .blurL1 img { --zoom-from: 1.57; --zoom-to: 1.45; animation: heroZoomOut 1.4s cubic-bezier(.22, .61, .25, 1) both; }
+
 .blurL1 {
   mask-image: linear-gradient(to right, #000 0px, #000 84px, transparent 280px);
   -webkit-mask-image: linear-gradient(to right, #000 0px, #000 84px, transparent 280px);
@@ -210,6 +226,10 @@
     animation: none;
   }
   .dotCircle { animation: none; }
+  .hero.hasJs .media img,
+  .hero.hasJs .blur img {
+    animation: none;
+  }
 }
 
 .intro {
