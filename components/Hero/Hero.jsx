@@ -89,17 +89,23 @@ export default function Hero() {
   useEffect(() => {
     const bar = trustBarRef.current;
     if (!bar) return;
+    let revealTimer;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setTrustRevealed(true);
+          // Small pause so this reveal doesn't land on top of the headline's
+          // own reveal (its last line finishes animating at ~1.48s on mount).
+          revealTimer = setTimeout(() => setTrustRevealed(true), 500);
           observer.disconnect();
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.45 }
     );
     observer.observe(bar);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      clearTimeout(revealTimer);
+    };
   }, []);
 
   // --- Hero image parallax on scroll -------------------------------------
