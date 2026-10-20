@@ -66,36 +66,40 @@ export default function Hero() {
   const videoRef = useRef(null);
   const playBtnRef = useRef(null);
   const triggerRef = useRef(null);
+  const trustBarRef = useRef(null);
 
   // Gates the pre-reveal (blurred) headline state so the copy is never left
   // invisible if hydration never runs.
   const [hasJs, setHasJs] = useState(false);
-  const [revealed, setRevealed] = useState(false);
   const [closing, setClosing] = useState(false);
   const [playing, setPlaying] = useState(false);
   // <dialog> is widely supported, but if showModal is missing leave the
   // trigger inert rather than opening a modal that can't be closed.
   const [canModal, setCanModal] = useState(true);
+  const [trustRevealed, setTrustRevealed] = useState(false);
 
   useIsomorphicLayoutEffect(() => {
     setHasJs(true);
     if (typeof HTMLDialogElement === "undefined" || !HTMLDialogElement.prototype.showModal) {
       setCanModal(false);
     }
+  }, []);
 
-    // Two rAFs so the pre-reveal state paints first and the transition
-    // actually runs rather than collapsing into the initial render.
-    let raf1 = requestAnimationFrame(() => {
-      raf1 = requestAnimationFrame(() => setRevealed(true));
-    });
-    // Safety net: rAF never fires in a background tab, and the headline is
-    // fully transparent until it does.
-    const timer = setTimeout(() => setRevealed(true), 400);
-
-    return () => {
-      cancelAnimationFrame(raf1);
-      clearTimeout(timer);
-    };
+  // --- Trust bar icon reveal on scroll ------------------------------------
+  useEffect(() => {
+    const bar = trustBarRef.current;
+    if (!bar) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setTrustRevealed(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    observer.observe(bar);
+    return () => observer.disconnect();
   }, []);
 
   // --- Hero image parallax on scroll -------------------------------------
@@ -224,13 +228,7 @@ export default function Hero() {
     if (p?.catch) p.catch(() => setPlaying(false));
   };
 
-  const heroClass = [
-    styles.hero,
-    hasJs ? styles.hasJs : "",
-    revealed ? styles.isRevealed : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const heroClass = [styles.hero, hasJs ? styles.hasJs : ""].filter(Boolean).join(" ");
 
   const modalClass = [
     styles.modal,
@@ -307,14 +305,17 @@ export default function Hero() {
         )}
       </section>
 
-      <div className={styles.trustBar}>
+      <div className={styles.trustBar} ref={trustBarRef}>
         {TRUST_ITEMS.map((item, i) => (
           <Fragment key={item.label}>
             {i > 0 && (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img className={styles.trustDivider} src="/Assets/Icons/Divider dot.svg" alt="" />
             )}
-            <div className={styles.trustItem}>
+            <div
+              className={`${styles.trustItem} ${trustRevealed ? styles.trustItemRevealed : ""}`}
+              style={{ "--reveal-delay": trustRevealed ? `${i * 120}ms` : "0ms" }}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={item.icon} alt="" />
               <span>{item.label}</span>

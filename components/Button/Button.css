@@ -86,9 +86,9 @@
 .atbBtnLight.atbBtnPrimary { background: #f88800; color: #111111; }
 .atbBtnLight.atbBtnPrimary .atbBtnIcon { background: #111111; color: #ffffff; }
 .atbBtnLight.atbBtnPrimary:hover:not(.atbBtnInactive) {
-  background: #111111;
-  color: #ffffff;
-  border-color: #b9b9b9;
+  background: #e5e5e5;
+  color: #111111;
+  border-color: #cccccc99;
 }
 .atbBtnLight.atbBtnPrimary:hover:not(.atbBtnInactive) .atbBtnIcon { background: #f88800; color: #111111; }
 .atbBtnLight.atbBtnPrimary.atbBtnInactive { background: #cccccc; color: #ffffff; }
@@ -97,12 +97,12 @@
 .atbBtnLight.atbBtnSecondary { background: transparent; color: #111111; border-color: #2e2e2e; }
 .atbBtnLight.atbBtnSecondary .atbBtnIcon { background: #f88800; color: #111111; }
 .atbBtnLight.atbBtnSecondary:hover:not(.atbBtnInactive) {
-  background: #f88800;
+  background: #e5e5e5;
   color: #111111;
-  border-color: transparent;
+  border-color: #cccccc99;
   text-decoration: none;
 }
-.atbBtnLight.atbBtnSecondary:hover:not(.atbBtnInactive) .atbBtnIcon { background: #111111; color: #ffffff; }
+.atbBtnLight.atbBtnSecondary:hover:not(.atbBtnInactive) .atbBtnIcon { background: #f88800; color: #111111; }
 .atbBtnLight.atbBtnSecondary.atbBtnInactive { background: transparent; color: #b9b9b9; border-color: #b9b9b9; }
 .atbBtnLight.atbBtnSecondary.atbBtnInactive .atbBtnIcon { color: #b9b9b9; }
 
@@ -116,8 +116,9 @@
 .atbBtnDark.atbBtnPrimary { background: #ffffff; color: #111111; }
 .atbBtnDark.atbBtnPrimary .atbBtnIcon { background: #111111; color: #ffffff; }
 .atbBtnDark.atbBtnPrimary:hover:not(.atbBtnInactive) {
-  background: #fee7cc;
+  background: #e5e5e5;
   color: #111111;
+  border-color: #cccccc99;
 }
 .atbBtnDark.atbBtnPrimary:hover:not(.atbBtnInactive) .atbBtnIcon { background: #f88800; color: #111111; }
 .atbBtnDark.atbBtnPrimary.atbBtnInactive { background: #cccccc; color: #ffffff; }
@@ -126,12 +127,12 @@
 .atbBtnDark.atbBtnSecondary { background: transparent; color: #ffffff; border-color: #b9b9b9; }
 .atbBtnDark.atbBtnSecondary .atbBtnIcon { background: #f88800; color: #111111; }
 .atbBtnDark.atbBtnSecondary:hover:not(.atbBtnInactive) {
-  background: #f88800;
+  background: #e5e5e5;
   color: #111111;
-  border-color: transparent;
+  border-color: #cccccc99;
   text-decoration: none;
 }
-.atbBtnDark.atbBtnSecondary:hover:not(.atbBtnInactive) .atbBtnIcon { background: #111111; color: #ffffff; }
+.atbBtnDark.atbBtnSecondary:hover:not(.atbBtnInactive) .atbBtnIcon { background: #f88800; color: #111111; }
 .atbBtnDark.atbBtnSecondary.atbBtnInactive { background: transparent; color: rgba(255, 255, 255, .5); border-color: rgba(255, 255, 255, .5); }
 .atbBtnDark.atbBtnSecondary.atbBtnInactive .atbBtnIcon { color: rgba(255, 255, 255, .5); }
 

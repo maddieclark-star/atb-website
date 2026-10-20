@@ -7,6 +7,9 @@
   position: relative;
   width: 100%;
   min-height: 888px;
+  /* Tucks up behind the primary nav's rounded bottom corners so the radius
+     reveals the hero's dark backdrop instead of the page background. */
+  margin-top: -24px;
   background: #111111;
   overflow: hidden;
   isolation: isolate;
@@ -174,31 +177,37 @@
 
 /* Blur reveal — each headline line resolves from blurred to sharp on mount,
    staggered top to bottom. Gated on .hasJs so the copy is never left
-   invisible if hydration doesn't run. */
+   invisible if hydration doesn't run. A self-playing animation (rather than
+   a transition armed by a second "revealed" state) so it always runs the
+   instant .hasJs lands, with no dependency on a follow-up render landing on
+   a separate painted frame. */
+@keyframes headlineReveal {
+  from {
+    filter: blur(14px);
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .hero.hasJs .headline span {
   filter: blur(14px);
   opacity: 0;
-  transform: translateY(14px);
-  transition:
-    filter 0.95s cubic-bezier(.22, .61, .25, 1),
-    opacity 0.95s cubic-bezier(.22, .61, .25, 1),
-    transform 0.95s cubic-bezier(.22, .61, .25, 1);
+  animation: headlineReveal 0.95s cubic-bezier(.22, .61, .25, 1) forwards;
 }
-.hero.hasJs.isRevealed .headline span {
-  filter: blur(0);
-  opacity: 1;
-  transform: translateY(0);
-}
-.hero.hasJs.isRevealed .headline span:nth-child(1) { transition-delay: 0.25s; }
-.hero.hasJs.isRevealed .headline span:nth-child(2) { transition-delay: 0.39s; }
-.hero.hasJs.isRevealed .headline span:nth-child(3) { transition-delay: 0.53s; }
+.hero.hasJs .headline span:nth-child(1) { animation-delay: 0.25s; }
+.hero.hasJs .headline span:nth-child(2) { animation-delay: 0.39s; }
+.hero.hasJs .headline span:nth-child(3) { animation-delay: 0.53s; }
 
 @media (prefers-reduced-motion: reduce) {
   .hero.hasJs .headline span {
     filter: none;
     opacity: 1;
     transform: none;
-    transition: none;
+    animation: none;
   }
   .dotCircle { animation: none; }
 }
@@ -206,7 +215,7 @@
 .intro {
   margin: 0;
   max-width: 574px;
-  font-family: var(--body-font);
+  font-family: var(--heading-font);
   font-weight: 400;
   font-size: 24px;
   line-height: 32px;
@@ -229,9 +238,10 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  padding: 0;
+  padding: 4px 4px 4px 24px;
   background: none;
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1000px;
   cursor: pointer;
   font-family: var(--btn-font);
   font-weight: 700;
@@ -241,7 +251,9 @@
 .playIcon {
   width: 44px;
   height: 44px;
+  box-sizing: border-box;
   border-radius: 1000px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
   background: #ffffff;
   display: inline-flex;
   align-items: center;
@@ -267,15 +279,48 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 80px;
+  gap: 64px;
   padding: 24px 32px;
+}
+/* Gradient stroke dividing the trust bar from the page below — bright at
+   centre, fading to nothing at each edge. */
+.trustBar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    #ffffff 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0.6;
+  pointer-events: none;
 }
 .trustItem {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) var(--reveal-delay, 0ms),
+    transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) var(--reveal-delay, 0ms);
 }
-.trustItem img { width: 48px; height: 48px; display: block; }
+.trustItemRevealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .trustItem {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+.trustItem img { width: 64px; height: 64px; display: block; }
 .trustItem span {
   font-family: var(--heading-font);
   font-weight: 800;

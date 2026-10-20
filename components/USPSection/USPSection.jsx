@@ -8,7 +8,7 @@ const CLAIM_TYPES = [
   { title: "Institutional & Sexual Abuse", icon: "/Assets/Icons/Stop.svg" },
   { title: "Road Accidents & TAC", icon: "/Assets/Icons/Car.svg" },
   { title: "Workers Compensation", icon: "/Assets/Icons/Construction.svg" },
-  { title: "Public Place Injury", icon: "/Assets/Icons/Fall.svg" },
+  { title: "Public Place Injury", icon: "/Assets/Icons/Public place injury.svg" },
   { title: "Medical Negligence", icon: "/Assets/Icons/Medical.svg" },
   { title: "Superannuation", icon: "/Assets/Icons/Superannuation.svg" },
   { title: "Class Action", icon: "/Assets/Icons/Gavel.svg" },
@@ -25,7 +25,7 @@ function UspCard({ title, icon, revealed, revealDelay }) {
     >
       <span
         className={styles.cardIcon}
-        style={{ WebkitMaskImage: `url(${icon})`, maskImage: `url(${icon})` }}
+        style={{ WebkitMaskImage: `url("${icon}")`, maskImage: `url("${icon}")` }}
       />
       <div className={styles.cardBody}>
         <p className={styles.cardTitle}>{title}</p>
@@ -62,14 +62,13 @@ function StepDots() {
   );
 }
 
-export default function USPSection() {
-  const [rowOne, rowTwo] = [CLAIM_TYPES.slice(0, 4), CLAIM_TYPES.slice(4, 8)];
+function useRevealOnScroll() {
   const [revealed, setRevealed] = useState(false);
-  const gridRef = useRef(null);
+  const ref = useRef(null);
 
   useEffect(() => {
-    const grid = gridRef.current;
-    if (!grid) return;
+    const node = ref.current;
+    if (!node) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -79,9 +78,17 @@ export default function USPSection() {
       },
       { threshold: 0.2 }
     );
-    observer.observe(grid);
+    observer.observe(node);
     return () => observer.disconnect();
   }, []);
+
+  return [ref, revealed];
+}
+
+export default function USPSection() {
+  const [rowOne, rowTwo] = [CLAIM_TYPES.slice(0, 4), CLAIM_TYPES.slice(4, 8)];
+  const [rowOneRef, rowOneRevealed] = useRevealOnScroll();
+  const [rowTwoRef, rowTwoRevealed] = useRevealOnScroll();
 
   return (
     <section className={styles.section}>
@@ -105,20 +112,15 @@ export default function USPSection() {
         </Button>
       </div>
 
-      <div className={styles.cardsWrap} ref={gridRef}>
-        <div className={styles.cardsRow}>
+      <div className={styles.cardsWrap}>
+        <div className={styles.cardsRow} ref={rowOneRef}>
           {rowOne.map((card, i) => (
-            <UspCard key={card.title} {...card} revealed={revealed} revealDelay={i * 100} />
+            <UspCard key={card.title} {...card} revealed={rowOneRevealed} revealDelay={i * 140} />
           ))}
         </div>
-        <div className={styles.cardsRow}>
+        <div className={styles.cardsRow} ref={rowTwoRef}>
           {rowTwo.map((card, i) => (
-            <UspCard
-              key={card.title}
-              {...card}
-              revealed={revealed}
-              revealDelay={(i + rowOne.length) * 100}
-            />
+            <UspCard key={card.title} {...card} revealed={rowTwoRevealed} revealDelay={i * 140} />
           ))}
         </div>
       </div>
