@@ -1,12 +1,12 @@
 import Image from "next/image";
 import Button from "../Button";
 import "./PrimaryNav.css";
-import logo from "../../Assets/Logo.svg";
-import sealCheckIcon from "../../Assets/Icons/Seal check.svg";
-import userIcon from "../../Assets/Icons/User.svg";
-import resourcesIcon from "../../Assets/Icons/Resources.svg";
-import chevronDownIcon from "../../Assets/Icons/Chevron down.svg";
-import searchIcon from "../../Assets/Icons/Search.svg";
+import logo from "../../public/Assets/Logo.svg";
+import sealCheckIcon from "../../public/Assets/Icons/Seal check.svg";
+import userIcon from "../../public/Assets/Icons/User.svg";
+import resourcesIcon from "../../public/Assets/Icons/Resources.svg";
+import chevronDownIcon from "../../public/Assets/Icons/Chevron down.svg";
+import searchIcon from "../../public/Assets/Icons/Search.svg";
 
 const PRACTICE_AREA_LINKS = [
   "Personal Injury",
