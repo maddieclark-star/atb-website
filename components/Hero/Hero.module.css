@@ -1,0 +1,475 @@
+/* Hero banner — ported from hero-banner-demo.html (Figma node 11719:2255).
+   The demo's own chrome (page-head, scroll-spacer) and its inline .btn
+   styles are intentionally not carried over: buttons come from the shared
+   <Button> component instead. */
+
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 888px;
+  /* Tucks up behind the primary nav's rounded bottom corners so the radius
+     reveals the hero's dark backdrop instead of the page background. */
+  margin-top: -24px;
+  background: #111111;
+  overflow: hidden;
+  isolation: isolate;
+  /* Declared here (not on the image) so every layer that needs to move
+     with the parallax — the sharp photo and all the blurred copies —
+     inherits the same value from one place. JS writes to this. */
+  --parallax-y: 0px;
+}
+
+.media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 0% 8%;
+  display: block;
+  /* --parallax-y is driven on scroll (declared on .hero). It rides inside
+     the same transform as the pan, so the X position is never disturbed. */
+  transform: scale(1.3) translateX(11.3%) translateY(var(--parallax-y));
+}
+
+/* Darkening tint — keeps the headline column legible over the photo. */
+.tint {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+.tintLeft {
+  left: 0;
+  width: 851px;
+  max-width: 62%;
+  background: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.39) 23.418%,
+    rgba(0, 0, 0, 0.936) 100%
+  );
+}
+.tintRight {
+  right: 0;
+  width: 420px;
+  max-width: 30%;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.45) 100%
+  );
+}
+
+/* Progressive blur — stacked blurred COPIES of the photo (not
+   backdrop-filter, which would sample the page above the hero and wash the
+   top corners grey). Each is masked to fade out before its own inner edge. */
+.blur {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.blur img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 0% 8%;
+  display: block;
+}
+/* Each copy is scaled just past its own blur radius so the soft edge stays
+   outside the hero at every parallax position. */
+.blurL3 img { filter: blur(16px); transform: scale(1.30) translateX(11.3%) translateY(var(--parallax-y)); }
+.blurR2 img { filter: blur(22px); transform: scale(1.32) translateX(11.3%) translateY(var(--parallax-y)); }
+.blurL2 img { filter: blur(36px); transform: scale(1.35) translateX(11.3%) translateY(var(--parallax-y)); }
+.blurR1 img { filter: blur(48px); transform: scale(1.40) translateX(11.3%) translateY(var(--parallax-y)); }
+.blurL1 img { filter: blur(60px); transform: scale(1.45) translateX(11.3%) translateY(var(--parallax-y)); }
+
+/* Entrance — every layer eases down from a slightly tighter crop to its
+   resting scale on first paint, so arrival reads as a soft zoom-out rather
+   than the photo snapping straight into the parallax position. Each layer
+   keeps its own resting scale (set above) via --zoom-to; --zoom-from is
+   just that plus a fixed 0.12 so they all ease at the same rate. */
+@keyframes heroZoomOut {
+  from { transform: scale(var(--zoom-from)) translateX(11.3%) translateY(var(--parallax-y)); }
+  to   { transform: scale(var(--zoom-to)) translateX(11.3%) translateY(var(--parallax-y)); }
+}
+.hero.hasJs .media img { --zoom-from: 1.42; --zoom-to: 1.30; animation: heroZoomOut 1.4s cubic-bezier(.22, .61, .25, 1) both; }
+.hero.hasJs .blurL3 img { --zoom-from: 1.42; --zoom-to: 1.30; animation: heroZoomOut 1.4s cubic-bezier(.22, .61, .25, 1) both; }
+.hero.hasJs .blurR2 img { --zoom-from: 1.44; --zoom-to: 1.32; animation: heroZoomOut 1.4s cubic-bezier(.22, .61, .25, 1) both; }
+.hero.hasJs .blurL2 img { --zoom-from: 1.47; --zoom-to: 1.35; animation: heroZoomOut 1.4s cubic-bezier(.22, .61, .25, 1) both; }
+.hero.hasJs .blurR1 img { --zoom-from: 1.52; --zoom-to: 1.40; animation: heroZoomOut 1.4s cubic-bezier(.22, .61, .25, 1) both; }
+.hero.hasJs .blurL1 img { --zoom-from: 1.57; --zoom-to: 1.45; animation: heroZoomOut 1.4s cubic-bezier(.22, .61, .25, 1) both; }
+
+.blurL1 {
+  mask-image: linear-gradient(to right, #000 0px, #000 84px, transparent 280px);
+  -webkit-mask-image: linear-gradient(to right, #000 0px, #000 84px, transparent 280px);
+}
+.blurL2 {
+  mask-image: linear-gradient(to right, #000 0px, #000 157px, transparent 560px);
+  -webkit-mask-image: linear-gradient(to right, #000 0px, #000 157px, transparent 560px);
+}
+.blurL3 {
+  mask-image: linear-gradient(to right, #000 0px, #000 194px, transparent 880px);
+  -webkit-mask-image: linear-gradient(to right, #000 0px, #000 194px, transparent 880px);
+}
+.blurR1 {
+  mask-image: linear-gradient(to left, #000 0px, #000 48px, transparent 160px);
+  -webkit-mask-image: linear-gradient(to left, #000 0px, #000 48px, transparent 160px);
+}
+.blurR2 {
+  mask-image: linear-gradient(to left, #000 0px, #000 119px, transparent 340px);
+  -webkit-mask-image: linear-gradient(to left, #000 0px, #000 119px, transparent 340px);
+}
+
+.inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  padding: 24px 24px 24px 64px;
+  min-height: 888px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding: 0 64px 0 0;
+}
+
+.headlineWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.eyebrowGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.dot {
+  width: 50px;
+  height: 16px;
+  display: block;
+  overflow: visible;
+}
+/* Dot device — staggered infinite bounce carried over from the USP section.
+   Inline SVG rather than an <img> so each circle can carry its own delay. */
+.dotCircle {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: heroDotBounce 2.4s ease-in-out infinite;
+}
+@keyframes heroDotBounce {
+  0%, 20%, 100% { transform: translateY(0); }
+  8.33% { transform: translateY(-5px); }
+}
+.dotCircle:nth-child(1) { animation-delay: 0s; }
+.dotCircle:nth-child(2) { animation-delay: 0.4s; }
+.dotCircle:nth-child(3) { animation-delay: 0.8s; }
+/* Once mounted the headline reveal runs first — its last line starts at
+   0.53s and takes 0.95s, so hold the bounce until ~1.5s. */
+.hero.hasJs .dotCircle:nth-child(1) { animation-delay: 1.5s; }
+.hero.hasJs .dotCircle:nth-child(2) { animation-delay: 1.9s; }
+.hero.hasJs .dotCircle:nth-child(3) { animation-delay: 2.3s; }
+
+.headline {
+  margin: 0;
+  font-family: var(--heading-font);
+  font-weight: 800;
+  font-size: 56px;
+  line-height: 60px;
+}
+.headline span { display: block; }
+.isAccent { color: var(--colour-orange); }
+.isMuted { color: var(--colour-grey-400); }
+.isPrimary { color: #ffffff; }
+
+/* Blur reveal — each headline line resolves from blurred to sharp on mount,
+   staggered top to bottom. Gated on .hasJs so the copy is never left
+   invisible if hydration doesn't run. A self-playing animation (rather than
+   a transition armed by a second "revealed" state) so it always runs the
+   instant .hasJs lands, with no dependency on a follow-up render landing on
+   a separate painted frame. */
+@keyframes headlineReveal {
+  from {
+    filter: blur(14px);
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.hero.hasJs .headline span {
+  filter: blur(14px);
+  opacity: 0;
+  animation: headlineReveal 0.95s cubic-bezier(.22, .61, .25, 1) forwards;
+}
+.hero.hasJs .headline span:nth-child(1) { animation-delay: 0.25s; }
+.hero.hasJs .headline span:nth-child(2) { animation-delay: 0.39s; }
+.hero.hasJs .headline span:nth-child(3) { animation-delay: 0.53s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero.hasJs .headline span {
+    filter: none;
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
+  .dotCircle { animation: none; }
+  .hero.hasJs .media img,
+  .hero.hasJs .blur img {
+    animation: none;
+  }
+}
+
+.intro {
+  margin: 0;
+  max-width: 574px;
+  font-family: var(--heading-font);
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 32px;
+  color: var(--colour-grey-100);
+}
+
+.ctas {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Floating "Play video" trigger. Bottom is 64px + the 32px the trust bar
+   overlaps the hero by, so the visible gap matches the 64px gap to the right. */
+.play {
+  position: absolute;
+  right: 64px;
+  bottom: 96px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 4px 4px 24px;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1000px;
+  cursor: pointer;
+  font-family: var(--btn-font);
+  font-weight: 700;
+  font-size: 16px;
+  color: #ffffff;
+}
+.playIcon {
+  width: 44px;
+  height: 44px;
+  box-sizing: border-box;
+  border-radius: 1000px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.playIcon img { width: 24px; height: 24px; }
+
+/* =========================================================
+   Trust bar
+========================================================= */
+.trustBar {
+  position: relative;
+  z-index: 2;
+  /* Must be at least the 32px corner radius below, or the bottom of the
+     rounded corner lands past the hero and the page background shows
+     through as a white notch at each top corner. */
+  margin-top: -32px;
+  background: var(--colour-grey-700);
+  border-radius: 32px 32px 0 0;
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 64px;
+  padding: 24px 32px;
+}
+/* Gradient stroke dividing the trust bar from the page below — bright at
+   centre, fading to nothing at each edge. */
+.trustBar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    #ffffff 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0.6;
+  pointer-events: none;
+}
+.trustItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) var(--reveal-delay, 0ms),
+    transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) var(--reveal-delay, 0ms);
+}
+.trustItemRevealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .trustItem {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+.trustItem img { width: 64px; height: 64px; display: block; }
+.trustItem span {
+  font-family: var(--heading-font);
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 28px;
+  color: #ffffff;
+  white-space: nowrap;
+}
+.trustDivider { width: 8px; height: 8px; display: block; }
+
+/* =========================================================
+   Video modal (Figma node 11719:2206)
+   Built on <dialog> + showModal() so Escape-to-close, the focus trap and
+   making the page behind inert are the browser's own behaviour.
+========================================================= */
+.modal {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  margin: 0;
+  padding: 52px;
+  border: none;
+  background: rgba(46, 46, 46, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+/* The UA sheet hides a closed dialog; only take over display when open.
+   `both` means that if animations don't run at all, the modal simply
+   appears at full opacity rather than sticking invisible. */
+.modal[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: videoModalIn 0.35s ease both;
+}
+.modal.isClosing {
+  animation: videoModalOut 0.28s ease both;
+}
+@keyframes videoModalIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes videoModalOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+/* The tint lives on the dialog itself, so the real backdrop stays clear. */
+.modal::backdrop { background: transparent; }
+
+.modalClose {
+  position: absolute;
+  top: 18px;
+  right: 21px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  z-index: 2;
+  border-radius: 50%;
+  transition: transform 0.2s var(--ease), opacity 0.2s var(--ease);
+}
+.modalClose img { width: 100%; height: 100%; display: block; }
+.modalClose:hover { transform: scale(1.08); }
+.modalClose:focus-visible { outline: 2px solid var(--colour-orange); outline-offset: 3px; }
+
+/* 16:9, filling the padded area but never taller than it. */
+.modalStage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-width: calc((100vh - 104px) * 16 / 9);
+  max-height: calc(100vh - 104px);
+  background: #000000;
+  overflow: hidden;
+}
+.modalVideo {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: #000000;
+}
+
+/* Centre play affordance — hidden once playback starts, at which point the
+   browser's own controls take over. */
+.modalPlay {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: var(--colour-orange);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s var(--ease);
+}
+/* Inline SVG rather than an <img> so the glyph can take its colour from
+   CSS — the exported Play.svg has its fill hard-coded to #111111. */
+.modalPlay svg {
+  width: 44px;
+  height: 44px;
+  display: block;
+  margin-left: 3px; /* optically centres the triangle */
+  color: var(--colour-black);
+}
+/* Hover is motion only — the orange fill and black glyph both hold. */
+.modalPlay:hover {
+  animation: playPulse 1.3s ease-in-out infinite;
+}
+@keyframes playPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.08); }
+}
+.modalPlay:focus-visible { outline: 2px solid var(--colour-orange); outline-offset: 4px; }
+.modal.isPlaying .modalPlay { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .modal[open],
+  .modal.isClosing { animation: none; }
+  .modalClose,
+  .modalPlay { transition: none; }
+  .modalPlay:hover { animation: none; }
+}

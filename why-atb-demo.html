@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ATB — Why ATB section</title>
+<style>
+  /* ------------------------------------------------------------------
+     Neue Haas Unica W1G — drop the font files into
+     components/WhyATB/fonts/ using these exact names and the design
+     becomes pixel-exact. Until then the stack falls back to Manrope
+     (Figma's own declared fallback) and then the system sans.
+     ------------------------------------------------------------------ */
+  @font-face {
+    font-family: "Neue Haas Unica W1G";
+    src: url("components/WhyATB/fonts/NeueHaasUnicaW1G-Heavy.woff2") format("woff2"),
+         url("components/WhyATB/fonts/NeueHaasUnicaW1G-Heavy.woff") format("woff");
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Neue Haas Unica W1G";
+    src: url("components/WhyATB/fonts/NeueHaasUnicaW1G-Medium.woff2") format("woff2"),
+         url("components/WhyATB/fonts/NeueHaasUnicaW1G-Medium.woff") format("woff");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    /* Figma variables, node 11636:18247 */
+    --colour-grey-800: #2e2e2e;
+    --colour-grey-700: #454545;
+    --colour-grey-50: #f2f2f2;
+    --surface-accent-dark: #f88800;
+    --text-primary: #111111;
+
+    --spacing-100: 8px;
+    --spacing-150: 12px;
+    --spacing-400: 32px;
+    --spacing-600: 48px;
+    --spacing-800: 64px;
+    --spacing-1200: 96px;
+
+    --size-heading-h1: 56px;   --line-height-heading-h1: 60px;
+    --size-heading-h2: 44px;   --line-height-heading-h2: 48px;
+    --size-heading-h5: 24px;   --line-height-heading-h5: 32px;
+    --size-body: 18px;         --line-height-body: 28px;
+    /* Body/Lg Body — the node now uses this for sub-copy */
+    --size-body-lg: 20px;      --line-height-body-lg: 28px;
+
+    /* Review deviations from Figma (node 11636:18247) */
+    --size-usp-title: 28px;    --line-height-usp-title: 36px;  /* was h5 24/32 */
+    --usp-card-padding-y: var(--spacing-600);                   /* was 32px */
+
+    --font-heading: "Neue Haas Unica W1G", "Manrope", "Helvetica Neue", Arial, sans-serif;
+    --font-body: "Neue Haas Unica W1G", "Manrope", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #e8e8e8;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+  }
+  header.page-head { padding: 24px 40px 0; }
+  header.page-head h1 { margin: 0 0 4px; font-size: 20px; color: #111; }
+  header.page-head p { margin: 0 0 16px; color: #555; font-size: 13px; max-width: 820px; line-height: 1.5; }
+  header.page-head p.note { color: #a85b00; }
+
+  /* ---------- Section shell (11636:18247) ---------- */
+  .section {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding: 0 24px;
+    background: linear-gradient(to bottom, var(--colour-grey-800), var(--colour-grey-700));
+  }
+
+  /* Content Container (11636:18248) — 1392px at a 1440 frame, capped at 1920 */
+  .card {
+    display: flex;
+    flex: 1 0 0;
+    flex-direction: column;
+    gap: var(--spacing-800);
+    min-width: 0;
+    max-width: 1920px;
+    padding: 64px 40px 40px;
+    overflow: clip;
+    background: var(--colour-grey-50);
+    border-radius: 32px;
+  }
+
+  /* ---------- Top row (11636:18249) ---------- */
+  .top-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: 16px;
+    width: 100%;
+  }
+
+  /* Global / Headline (11636:18254) */
+  .headline {
+    display: flex;
+    flex: 1 0 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  /* Dot (11636:18258) — 50x16 box; the SVG runs 4% past the right edge,
+     matching Figma's inset[0_-4%_0_0] so the circles stay round. */
+  .dot {
+    position: relative;
+    flex-shrink: 0;
+    width: 50px;
+    height: 16px;
+    overflow: visible;
+  }
+  /* The SVG is inlined (vector data copied verbatim from dot.svg) rather than
+     referenced via <img>, because each of the three dots has to animate on its
+     own delay — not reachable from inside an <img>. */
+  .dot svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    overflow: visible;
+  }
+  /* Matched to the dot motion on the USP section (claude/naughty-chatterjee-014e84,
+     usp-section-demo.html): a quick 5px hop peaking at 8.33% and settled by 20%,
+     then a long pause across the rest of the 2.4s cycle. No scale, and a 0.4s
+     stagger so the three read as separate blips rather than a rolling wave. */
+  .dot path {
+    transform-box: fill-box;        /* origin per-dot, not per-SVG */
+    transform-origin: center;
+    animation: dot-bounce 2.4s ease-in-out infinite;
+  }
+  .dot path:nth-of-type(2) { animation-delay: 0.4s; }
+  .dot path:nth-of-type(3) { animation-delay: 0.8s; }
+
+  @keyframes dot-bounce {
+    0%, 20%, 100% { transform: translateY(0); }
+    8.33%         { transform: translateY(-5px); }
+  }
+
+  /* ---------- Cascading USP reveal ---------- */
+  /* Hidden state only applies once JS confirms it can reveal them, so the
+     cards stay visible if the script never runs. */
+  /* 28px travel on cubic-bezier(0.16, 1, 0.3, 1), matching the USP section's
+     card reveal so the two sections decelerate identically. */
+  .js-motion .usp-card {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .js-motion .usp-card.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+  /* 220ms apart over a 0.9s travel — the four overlap rather than firing as
+     four separate pops, which is what made the old 120ms/0.6s read as rushed. */
+  .js-motion .usp-card:nth-child(1) { transition-delay: 0ms; }
+  .js-motion .usp-card:nth-child(2) { transition-delay: 220ms; }
+  .js-motion .usp-card:nth-child(3) { transition-delay: 440ms; }
+  .js-motion .usp-card:nth-child(4) { transition-delay: 660ms; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dot path { animation: none; }
+    .js-motion .usp-card {
+      opacity: 1;
+      transform: none;
+      transition: none;
+      transition-delay: 0ms;
+    }
+  }
+
+  .heading {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: var(--size-heading-h2);
+    line-height: var(--line-height-heading-h2);
+    color: var(--text-primary);
+    text-align: left;
+    white-space: nowrap;
+  }
+  .heading-accent { color: var(--surface-accent-dark); }
+
+  /* Lockup (11636:18263) — 452x132, matching the Figma node exactly.
+     `fill` reproduces the node's own non-uniform scale of the 1024x175
+     artwork (horizontal 0.4414, vertical 0.7543), which is what makes the
+     wordmark render 1.709x taller than its native proportions. Requested in
+     review so the build matches the design file; see the note in the page
+     header. Source is 1024px wide into a 452px box, so it stays a downscale
+     and renders crisply at 2x. */
+  .lockup {
+    flex-shrink: 0;
+    width: 452px;
+    height: 132px;
+    max-width: 100%;
+    object-fit: fill;
+    pointer-events: none;
+  }
+
+  /* ---------- Image + USPs (11636:18264) ---------- */
+  .image-and-usps {
+    display: flex;
+    align-items: stretch;
+    gap: var(--spacing-1200);
+    width: 100%;
+  }
+
+  /* Image (11636:18265) — width holds the Figma 560:688 ratio against the
+     USP column and scales with it. Height is driven by the row (stretch),
+     so the photo's bottom edge always lands flush with the last USP card.
+     object-fit: cover absorbs the varying height as crop, never distortion;
+     the 1600x1977 asset stays a downscale at every width up to the 1920 cap. */
+  .image-frame {
+    position: relative;
+    flex: 560 1 0%;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: 24px;
+  }
+  /* Absolutely positioned so the photo's intrinsic height never feeds back
+     into the row. Without this the frame reports its natural height (width
+     x 1977/1600), which at wide viewports exceeds the USP stack and becomes
+     the row height — pushing the cards into a centred block with slack above
+     and below, and breaking the flush bottom edge. */
+  /* Overscaled to 116% height, anchored -8% above the frame, so there is 8%
+     of travel in each direction for the parallax to use without ever
+     exposing an edge. --parallax is driven by scroll position in JS and
+     stays 0 if that never runs or if reduced motion is set. */
+  .photo {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -8%;
+    display: block;
+    width: 100%;
+    height: 116%;
+    object-fit: cover;
+    object-position: center;
+    transform: translate3d(0, var(--parallax, 0px), 0);
+    will-change: transform;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .photo { transform: none; }
+  }
+
+  /* USP column (11636:18355) — gap 16, vertically centred beside the image */
+  .usp-list {
+    display: flex;
+    flex: 688 1 0%;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 16px;
+    min-width: 300px;
+  }
+
+  /* Content (11636:18277) — 160px tall at spec */
+  /* Number top-aligns with the title/sub-copy block, per node 11636:18355 */
+  .usp-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-600);
+    width: 100%;
+    padding: var(--usp-card-padding-y) var(--spacing-400);
+    background: var(--surface-accent-dark);
+    border-radius: 16px;
+  }
+
+  /* Number (11636:18328) — 35px wide instance, centred */
+  .usp-number {
+    flex-shrink: 0;
+    width: 35px;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: var(--size-heading-h1);
+    line-height: var(--line-height-heading-h1);
+    text-align: center;
+    white-space: nowrap;
+    color: var(--text-primary);
+  }
+
+  .usp-text {
+    display: flex;
+    flex: 1 0 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-100);
+    min-width: 0;
+  }
+
+  .usp-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--spacing-150);
+    width: 100%;
+  }
+  /* nowrap dropped with the step up to 28px — "We cover the costs so you
+     don't have to" no longer fits one line in the 549px text block. */
+  /* At 28px and a 64px number gap, card 2's title (528px needed vs 507px
+     available at 1440) no longer fits one line. `balance` splits it evenly
+     rather than leaving a one-word orphan on line two. */
+  .usp-title {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: var(--size-usp-title);
+    line-height: var(--line-height-usp-title);
+    color: var(--text-primary);
+    text-align: left;
+    text-wrap: balance;
+  }
+  /* Holds every body to exactly 2 lines at any viewport. Measured single-line
+     widths are 634/794/655/770px, so the window where all four wrap to 2 is
+     398-632px; 515px sits mid-window, leaving headroom for the real Neue Haas
+     Unica metrics to differ from the current fallback without tipping a card
+     to 1 or 3 lines. */
+  .usp-body {
+    margin: 0;
+    max-width: 515px;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: var(--size-body-lg);
+    line-height: var(--line-height-body-lg);
+    color: var(--text-primary);
+    text-align: left;
+  }
+
+  footer.page-foot { padding: 16px 40px 40px; color: #777; font-size: 12px; }
+</style>
+<script>
+  // Set before first paint so the cards never flash in at full opacity.
+  // Gated on IntersectionObserver so that without it the cards simply stay visible.
+  if ('IntersectionObserver' in window) {
+    document.documentElement.classList.add('js-motion');
+  }
+</script>
+</head>
+<body>
+
+<header class="page-head">
+  <h1>ATB — "Why ATB" USP section (desktop replica)</h1>
+  <p>Based on Figma node 11636:18247 ("USPs / Vertical / Desktop"), authored at a 1440&times;992 frame. Layout structure, gaps, padding, radii and the 560:688 column proportion come from that node; the card caps at 1920px and centres, per the design. Scaling deviation: Figma pins the image at a fixed 560&times;692, whereas here the image width holds the 560:688 ratio against the USP column and its height tracks that column, so the two always share a flush top and bottom edge.</p>
+  <p>Sub-copy uses the node's Body/Lg Body style (20px/28px). Review deviations from the Figma file: USP titles stepped up to 28px/36px (from 24px/32px), card vertical padding raised to 48px (from 32px), the number-to-copy gap set to 48px (from 40px), the image/USP gap widened to 96px (from 64px), and every sub-copy line held to exactly two lines at any width via a 515px max-width. The logo lockup matches node 11636:18263 exactly, including that node's non-uniform scale of the artwork.</p>
+  <p>Motion (not specified in the Figma file): the dot device pulses on an infinite loop, the USP cards cascade in on scroll, and the photo has a scroll-driven parallax. All three are disabled under <code>prefers-reduced-motion</code>.</p>
+  <p class="note">Font note: "Neue Haas Unica W1G" isn't installed yet, so text currently falls back to Manrope/system sans and line-wrapping may differ slightly from the spec. Drop NeueHaasUnicaW1G-Heavy.woff2 and NeueHaasUnicaW1G-Medium.woff2 into components/WhyATB/fonts/ and the @font-face rules at the top of this file will pick them up automatically.</p>
+</header>
+
+<section class="section">
+  <div class="card">
+    <div class="top-row">
+      <div class="headline">
+        <span class="dot" aria-hidden="true">
+          <svg width="52" height="16" viewBox="0 0 52 16" fill="none" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M8 0C9.58239 1.32785e-07 11.1292 0.469278 12.4449 1.34847C13.7606 2.22767 14.7859 3.4773 15.3913 4.93929C15.9968 6.40129 16.155 8.00999 15.846 9.56192C15.5371 11.1139 14.7748 12.5393 13.6557 13.658C12.5365 14.7767 11.1108 15.5384 9.55871 15.8467C8.00665 16.155 6.39801 15.9961 4.93626 15.3901C3.47451 14.7841 2.22531 13.7582 1.34665 12.4422C0.467996 11.1262 -0.000647583 9.57912 6.71618e-07 7.99673C0.00173751 5.87583 0.845254 3.84234 2.34526 2.34295C3.84527 0.843558 5.8791 0.000867797 8 0Z" fill="#BCBCBC"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M26 0C28.1217 0 30.1566 0.842866 31.6569 2.34316C33.1571 3.84345 34 5.87827 34 8.00001C34 10.1217 33.1571 12.1566 31.6569 13.6569C30.1566 15.1571 28.1217 16 26 16C23.8783 16 21.8434 15.1571 20.3431 13.6569C18.8429 12.1566 18 10.1217 18 8.00001C18 5.87827 18.8429 3.84345 20.3431 2.34316C21.8434 0.842866 23.8783 0 26 0Z" fill="#717171"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M44.0012 0C46.1226 0 48.1572 0.842864 49.6572 2.34315C51.1573 3.84345 52 5.87827 52 8C52 10.1217 51.1573 12.1566 49.6572 13.6569C48.1572 15.1571 46.1226 16 44.0012 16C41.88 16 39.8456 15.1576 38.3452 13.6579C36.8449 12.1582 36.0013 10.124 36 8.00246C36.0009 5.88035 36.8441 3.84539 38.3445 2.34483C39.8448 0.844266 41.8794 0.000868652 44.0012 0Z" fill="#F88800"/>
+          </svg>
+        </span>
+        <h2 class="heading">
+          Why choose<br />
+          <span class="heading-accent">Arnold Thomas &amp; Becker?</span>
+        </h2>
+      </div>
+      <img src="components/WhyATB/assets/no-win-no-fee-lockup.png" alt="No win, no fee. No fear." class="lockup" />
+    </div>
+
+    <div class="image-and-usps">
+      <div class="image-frame">
+        <img src="components/WhyATB/assets/why-atb-photo.jpg" alt="" class="photo" />
+      </div>
+
+      <div class="usp-list">
+        <div class="usp-card">
+          <span class="usp-number">1</span>
+          <div class="usp-text">
+            <div class="usp-title-row"><p class="usp-title">No win, no fee</p></div>
+            <p class="usp-body">You won’t pay legal fees upfront, and we’ll explain costs clearly from the start.</p>
+          </div>
+        </div>
+        <div class="usp-card">
+          <span class="usp-number">2</span>
+          <div class="usp-text">
+            <div class="usp-title-row"><p class="usp-title">We cover the costs so you don't have to</p></div>
+            <p class="usp-body">From medical reports to expert fees, we front all the costs of your claim, with no interest charges.</p>
+          </div>
+        </div>
+        <div class="usp-card">
+          <span class="usp-number">3</span>
+          <div class="usp-text">
+            <div class="usp-title-row"><p class="usp-title">Clear advice, in plain English</p></div>
+            <p class="usp-body">We explain your options clearly, without legal jargon or unnecessary complexity.</p>
+          </div>
+        </div>
+        <div class="usp-card">
+          <span class="usp-number">4</span>
+          <div class="usp-text">
+            <div class="usp-title-row"><p class="usp-title">Speak directly to a lawyer</p></div>
+            <p class="usp-body">No call centre. When you contact us, you’ll speak to someone who understands your situation.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="page-foot">
+  CTA button slots (the header pair and one per USP card) are toggled hidden in this Figma design state, so none are rendered here. The ATB Button component is in the repo and ready to drop in once those slots are enabled.
+</footer>
+
+<script>
+  // Cascading USP reveal. Observes the column rather than each card, so the
+  // four always fire as one staggered run instead of drifting apart on tall
+  // viewports where they'd each cross the threshold at different times.
+  (function () {
+    if (!document.documentElement.classList.contains('js-motion')) return;
+
+    var list = document.querySelector('.usp-list');
+    var cards = [].slice.call(document.querySelectorAll('.usp-card'));
+    if (!list || !cards.length) return;
+
+    var reveal = function () {
+      cards.forEach(function (card) { card.classList.add('is-visible'); });
+    };
+
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      reveal();
+      return;
+    }
+
+    var done = false;
+    var observer = null;
+
+    var finish = function () {
+      if (done) return;
+      done = true;
+      reveal();
+      if (observer) observer.disconnect();
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+
+    // Geometry fallback. IntersectionObserver callbacks aren't always
+    // delivered when the page isn't actively compositing (background tabs,
+    // headless capture), and this also covers landing with the section
+    // already in view.
+    var inView = function () {
+      var r = list.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      var visible = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+      return visible > 0 && visible / Math.min(r.height, vh) >= 0.15;
+    };
+
+    var ticking = false;
+    var onScroll = function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () {
+        ticking = false;
+        if (inView()) finish();
+      });
+    };
+
+    observer = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].isIntersecting) { finish(); return; }
+      }
+    }, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
+    observer.observe(list);
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+
+    // Synchronous, not via onScroll's rAF throttle — rAF is also starved when
+    // the page isn't compositing, which would strand the cards hidden.
+    if (inView()) finish();
+  })();
+
+  // Parallax on the USP photo. Shifts the overscaled image against the scroll
+  // so it drifts slower than the frame. Amplitude is 8% of frame height, which
+  // is exactly the headroom the 116% sizing provides.
+  (function () {
+    var frame = document.querySelector('.image-frame');
+    var photo = document.querySelector('.photo');
+    if (!frame || !photo) return;
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    var update = function () {
+      var r = frame.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      if (r.bottom < 0 || r.top > vh) return;           // off-screen, skip work
+      var frameCentre = r.top + r.height / 2;
+      // -1 when the frame sits below the viewport, +1 when above, 0 dead centre
+      var progress = (vh / 2 - frameCentre) / (vh / 2 + r.height / 2);
+      progress = Math.max(-1, Math.min(1, progress));
+      photo.style.setProperty('--parallax', (progress * r.height * 0.08).toFixed(1) + 'px');
+    };
+
+    var ticking = false;
+    var onScroll = function () {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(function () { ticking = false; update(); });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();   // synchronous first pass, for the same rAF-starvation reason
+  })();
+</script>
+
+</body>
+</html>

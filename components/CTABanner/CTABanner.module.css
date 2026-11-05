@@ -1,0 +1,464 @@
+/* ------------------------------------------------------------------
+   CTA banner — Figma section 12062:7443 (frames 12062:7399 et al.),
+   authored at 1440x799. Fonts come from the Typekit kit loaded in
+   src/app/layout.tsx via the --heading-font token in globals.css.
+   ------------------------------------------------------------------ */
+
+.banner {
+  /* Slide timing. HOLD_MS in CTABanner.jsx (5s) is the gap between slides;
+     the photo push and the name card copy share one duration and curve so
+     they land together. */
+  --slide-duration: 1.1s;
+  --slide-ease: cubic-bezier(0.77, 0, 0.175, 1);
+  /* How far the photo drifts inside its frame while the frame slides — half
+     the travel, so the photo moves at half speed for a sense of depth. */
+  --slide-parallax: 50%;
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  /* The photo card is capped at its Figma width, so on screens wider than
+     the 1440 frame the spare width opens up between copy and photo rather
+     than stretching the photo landscape. 96px is the floor (Figma has 64),
+     for a clearer break between the two at the design width too. */
+  justify-content: space-between;
+  gap: 96px;
+  min-height: 800px; /* 702 carousel (664 card + 26 gap + 12 dots), centred (Figma: 799) */
+  padding: 48px 64px;
+  overflow: clip;
+  border-radius: 32px 32px 0 0;
+  /* surface-invert-secondary, with the bottom 527px (12062:7401) fading
+     into grey-800 */
+  background:
+    linear-gradient(to bottom, rgba(46, 46, 46, 0), #2e2e2e) bottom / 100% 527px no-repeat,
+    #111111;
+}
+
+.banner *,
+.banner *::before,
+.banner *::after { box-sizing: border-box; }
+
+/* ---------- Content (12062:7403) ---------- */
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 0 1 684px;
+  flex-direction: column;
+  gap: 40px;
+  min-width: 0;
+}
+
+.headlineGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dot {
+  width: 50px;
+  height: 16px;
+  display: block;
+  overflow: visible;
+}
+/* Same staggered bounce as the hero and USP sections. */
+.dotCircle {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: ctaDotBounce 2.4s ease-in-out infinite;
+}
+.dotCircle:nth-child(2) { animation-delay: 0.4s; }
+.dotCircle:nth-child(3) { animation-delay: 0.8s; }
+@keyframes ctaDotBounce {
+  0%, 20%, 100% { transform: translateY(0); }
+  8.33% { transform: translateY(-5px); }
+}
+
+.copy {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Heading/H2 — 44/48. Figma tags "stand with you." as Archivo, but the
+   frame renders it in the heading face like the rest of the line, so the
+   whole heading uses the brand heading font. */
+.heading {
+  margin: 0;
+  max-width: 486px;
+  font-family: var(--heading-font);
+  font-weight: 800;
+  font-size: 44px;
+  line-height: 48px;
+  color: #ffffff;
+}
+.accent { color: var(--colour-orange); }
+
+/* Body/Body — 18/28, text-secondary-invert */
+.body {
+  margin: 0;
+  max-width: 632px;
+  font-family: var(--heading-font);
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 28px;
+  color: var(--colour-grey-100);
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+/* ---------- Slider carousel (12087:5071) ---------- */
+/* Capped at 680px (Figma has 564) — wider on large screens, roughly square
+   against the 664px height. It gives up width when the row runs short,
+   e.g. 550px at a 1440 frame. */
+.carousel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 0 1 680px;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  min-width: 360px;
+}
+
+/* Holds the card and its arrows. The arrows straddle the card's edges, so
+   they sit here rather than inside the card's clipping. */
+.stage {
+  position: relative;
+  width: 100%;
+}
+
+/* ---------- Photo card (12087:5072) ---------- */
+.photoCard {
+  position: relative;
+  width: 100%;
+  height: 664px;
+  overflow: hidden;
+  border-radius: 24px;
+  background: #1b1b1b;
+  isolation: isolate;
+}
+
+/* Each slide is its own clipping frame so the photo can drift inside it.
+   At rest a slide is parked off to the side; the active one sits in frame
+   and the outgoing one ends up off the opposite side. */
+.slide {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  transform: translate3d(100%, 0, 0);
+  will-change: transform;
+}
+.slideImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* When the card is wider than the photo, cover trims top and bottom; a
+     quarter from the top keeps headroom on every photo while holding on to
+     as much torso as possible. */
+  object-position: center 25%;
+  will-change: transform;
+}
+.slide.isActive {
+  z-index: 2;
+  transform: translate3d(0, 0, 0);
+}
+.slide.isPrev {
+  z-index: 1;
+  transform: translate3d(-100%, 0, 0);
+}
+
+/* The push runs on keyframes rather than transitions so it can go either
+   way: a transition can only move from wherever a slide is parked, but going
+   backwards the incoming slide has to start from the left. Each change
+   swaps the animation name on both slides, which restarts it.
+
+   Forwards: incoming slides in from the right while its photo catches up
+   from behind (so the face arrives a beat after the frame edge); outgoing is
+   pushed off to the left, photo lagging the other way. Backwards mirrors it. */
+.photoCard[data-dir] .slide.isActive,
+.photoCard[data-dir] .slide.isPrev,
+.photoCard[data-dir] .slide.isActive .slideImg,
+.photoCard[data-dir] .slide.isPrev .slideImg {
+  animation-duration: var(--slide-duration);
+  animation-timing-function: var(--slide-ease);
+  animation-fill-mode: both;
+}
+.photoCard[data-dir="next"] .slide.isActive { animation-name: ctaSlideFromRight; }
+.photoCard[data-dir="next"] .slide.isActive .slideImg { animation-name: ctaPhotoFromLeft; }
+.photoCard[data-dir="next"] .slide.isPrev { animation-name: ctaSlideToLeft; }
+.photoCard[data-dir="next"] .slide.isPrev .slideImg { animation-name: ctaPhotoToRight; }
+.photoCard[data-dir="back"] .slide.isActive { animation-name: ctaSlideFromLeft; }
+.photoCard[data-dir="back"] .slide.isActive .slideImg { animation-name: ctaPhotoFromRight; }
+.photoCard[data-dir="back"] .slide.isPrev { animation-name: ctaSlideToRight; }
+.photoCard[data-dir="back"] .slide.isPrev .slideImg { animation-name: ctaPhotoToLeft; }
+
+@keyframes ctaSlideFromRight { from { transform: translate3d(100%, 0, 0); } to { transform: translate3d(0, 0, 0); } }
+@keyframes ctaSlideFromLeft { from { transform: translate3d(-100%, 0, 0); } to { transform: translate3d(0, 0, 0); } }
+@keyframes ctaSlideToLeft { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-100%, 0, 0); } }
+@keyframes ctaSlideToRight { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(100%, 0, 0); } }
+@keyframes ctaPhotoFromLeft { from { transform: translate3d(calc(var(--slide-parallax) * -1), 0, 0); } to { transform: translate3d(0, 0, 0); } }
+@keyframes ctaPhotoFromRight { from { transform: translate3d(var(--slide-parallax), 0, 0); } to { transform: translate3d(0, 0, 0); } }
+@keyframes ctaPhotoToRight { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(var(--slide-parallax), 0, 0); } }
+@keyframes ctaPhotoToLeft { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(calc(var(--slide-parallax) * -1), 0, 0); } }
+
+/* Overlay (Top) — 169px, black at 0.8 fading out, so the top of every photo
+   settles into the section. Figma also blurs it; left out, since a backdrop
+   blur that fades out leaves a hard seam in Chrome. */
+.photoFadeTop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  height: 169px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+  pointer-events: none;
+}
+
+/* Overlay (Bottom) — 299px, #111 at 0 → 0.8, so the name card always sits
+   on a dark base whatever the photo. */
+.photoFade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  height: 299px;
+  background: linear-gradient(to bottom, rgba(17, 17, 17, 0), rgba(17, 17, 17, 0.8));
+  pointer-events: none;
+}
+
+/* ---------- Name card (12087:5267) ---------- */
+/* Frosted panel, 24px in from the photo card's sides and bottom, with the
+   copy on the left and the Profile button on the right. Figma sets the
+   stroke to plain white, but the frame renders it as a faint hairline, so
+   it's matched to that. */
+.nameCard {
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  bottom: 24px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.01);
+  -webkit-backdrop-filter: blur(38.4px);
+  backdrop-filter: blur(38.4px);
+}
+
+/* Every lawyer's copy sits in the same grid cell, so the card is sized by
+   the tallest entry and never changes height mid-swap. */
+.nameStack {
+  display: grid;
+  flex: 1 1 0;
+  min-width: 0;
+}
+.nameItem {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profileBtn { flex-shrink: 0; }
+
+/* Each line is its own mask; the text inside rises through it. */
+.line {
+  display: block;
+  overflow: hidden;
+}
+.name,
+.role {
+  display: block;
+  color: #ffffff;
+  opacity: 0;
+  transform: translate3d(0, 110%, 0);
+}
+
+/* Heading/H5 — 24/32 */
+.name {
+  font-family: var(--heading-font);
+  font-weight: 800;
+  font-size: 24px;
+  line-height: 32px;
+  white-space: nowrap;
+}
+
+/* Body/Sm Body — 16/24. Wraps, as Kim's does in Figma. */
+.role {
+  font-family: var(--heading-font);
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+/* Copy moves on the photo's own duration and curve, with the role trailing
+   the name slightly so the two read as a pair rather than a block. Both
+   names share the line mask mid-swap, so the outgoing one fades out over
+   the first half and the incoming one fades in over the back half — they
+   travel together without ever stacking legibly on top of each other. */
+.nameItem.isActive .name,
+.nameItem.isActive .role {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  transition:
+    transform var(--slide-duration) var(--slide-ease),
+    opacity calc(var(--slide-duration) * 0.5) ease-out calc(var(--slide-duration) * 0.25);
+}
+.nameItem.isActive .role {
+  transition-delay: 0.08s, calc(var(--slide-duration) * 0.25 + 0.08s);
+}
+
+.nameItem.isPrev .name,
+.nameItem.isPrev .role {
+  opacity: 0;
+  transform: translate3d(0, -110%, 0);
+  transition:
+    transform var(--slide-duration) var(--slide-ease),
+    opacity calc(var(--slide-duration) * 0.45) ease-in;
+}
+.nameItem.isPrev .role { transition-delay: 0.04s; }
+
+/* ---------- Arrows (12087:5084) ---------- */
+/* 52px white discs (Figma has 48) centred on the card's left and right
+   edges, and halfway down it. */
+.arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: none;
+  border-radius: 1000px;
+  background: #ffffff;
+  cursor: pointer;
+  transform: translate3d(0, -50%, 0);
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.arrow img {
+  display: block;
+  width: 24px;
+  height: 24px;
+}
+.arrowPrev { left: -26px; }
+.arrowPrev img { transform: rotate(180deg); }
+.arrowNext { right: -26px; }
+.arrow:hover {
+  background: var(--colour-orange);
+  transform: translate3d(0, -50%, 0) scale(1.06);
+}
+.arrow:focus-visible,
+.pageDot:focus-visible {
+  outline: 2px solid var(--colour-orange);
+  outline-offset: 3px;
+}
+
+/* ---------- Pagination (12087:5083) ---------- */
+.dots {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.pageDot {
+  position: relative;
+  display: block;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: #e5e5e5;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+/* Bigger hit area than the 12px dot, without spacing the row out. */
+.pageDot::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+}
+.pageDot:hover { transform: scale(1.2); }
+.pageDotActive { background: var(--colour-orange); }
+
+/* ---------- Narrower viewports ---------- */
+/* Below ~1100px the carousel can't hold its width beside the copy, so the
+   two stack, with the card capped at its Figma width. */
+@media (max-width: 1100px) {
+  .banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 48px;
+    min-height: 0;
+    padding: 64px 24px;
+  }
+  .content { flex-basis: auto; }
+  .carousel {
+    flex: none;
+    width: 100%;
+    max-width: 564px;
+    min-width: 0;
+  }
+  .photoCard {
+    height: auto;
+    aspect-ratio: 680 / 760; /* portrait when stacked; the fixed height is desktop-only */
+  }
+}
+
+@media (max-width: 600px) {
+  .heading {
+    font-size: 36px;
+    line-height: 40px;
+  }
+  /* Too little room to hang off the card's edges here; tuck them inside. */
+  .arrowPrev { left: 12px; }
+  .arrowNext { right: 12px; }
+  .nameCard {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    gap: 12px;
+    padding: 16px;
+  }
+  .name {
+    font-size: 20px;
+    line-height: 28px;
+  }
+  .role {
+    font-size: 14px;
+    line-height: 20px;
+  }
+  /* Long names won't hold one line at phone widths; the grid stack keeps
+     the card at the tallest entry's height either way. */
+  .name { white-space: normal; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dotCircle { animation: none; }
+  .slide,
+  .slideImg {
+    animation: none !important;
+  }
+  .name,
+  .role,
+  .arrow,
+  .pageDot {
+    transition: none !important;
+  }
+}
