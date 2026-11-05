@@ -51,7 +51,9 @@ function ArrowRightIcon(props) {
  * light/dark mode. Hover motion (label slide + colour swap) is pure CSS,
  * defined in Button.css.
  *
- * Renders an <a> when `href` is passed, otherwise a <button>.
+ * Renders an <a> when `href` is passed, otherwise a <button>. `icon` is
+ * true for the default arrow, false for none, or an element to use in its
+ * place (drawn in currentColor so it follows the hover colour swap).
  */
 export default function Button({
   variant = "primary",
@@ -95,7 +97,7 @@ export default function Button({
       </span>
       {icon && (
         <span className={`${styles.icon} ${showBareIcon ? styles.iconBare : ""}`}>
-          <ArrowRightIcon />
+          {icon === true ? <ArrowRightIcon /> : icon}
         </span>
       )}
     </Tag>
